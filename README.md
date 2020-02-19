@@ -2,9 +2,9 @@
 
 ## Introduction
 
-QuickerSite is an all-in-one CMS (Content Management System) built in ASP/VBScript, for Windows Servers (2000-2019). 
+QuickerSite is an all-in-one CMS (Content Management System) built in ASP/VBScript QuickerSite runs on both Windows Servers (IIS 5 and higher) and most other Windows versions through IIS Express (Visual Code, Webmatrix, etc).
 
 ## Installation
-Install this application in the root of an IIS website and make sure IUSR has full permissions on the entire folder.
+Install this application in the root of an IIS website and make sure IUSR has full permissions to the entire folder.
 Make sure "default.asp" is the default document. 
-When browsing to your site the first time, you will be prompted with a password, by default this is "admin". You have to change that to something else. 
+When browsing to your site the first time, you will be prompted for a password. By default this is "admin". You have to change it to something else. 
