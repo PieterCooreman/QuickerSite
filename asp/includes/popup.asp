@@ -197,7 +197,7 @@ dumpJS="<script type=""text/javascript"">" & vbcrlf
 dumpJS=dumpJS&"$(window).load(function(){" & vbcrlf
 dumpJS=dumpJS&"var sGetUrl = " & """" & sGetUrl & """" & ";" & vbcrlf
 
-dumpJS=dumpJS&" if ($(this).width() > 799) { " & vbcrlf
+dumpJS=dumpJS&" if ($(this).width() > 0) { " & vbcrlf
 
 dumpJS=dumpJS&"$.colorbox({close: """ & quotrep(l("close")) & """, open:true, innerWidth:" & iWidth & ", title:""" & quotrep(sName) & """, innerHeight:" & iHeight & ", iframe:true, href:sGetUrl}); " & vbcrlf
 if convertGetal(iAutoclose)<>0 then
