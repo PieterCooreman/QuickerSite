@@ -1065,11 +1065,6 @@ if left(trim(prepareforEmail),1)<>"<" then
 prepareforEmail="<p>"&prepareforEmail&"</p>"
 end if
 prepareforEmail=prepareForExport(prepareforEmail)
-prepareforEmail=replace(prepareforEmail,"</div>","</div>" & vbcrlf,1,-1,1)
-prepareforEmail=replace(prepareforEmail,"</p>","</p>" & vbcrlf,1,-1,1)
-prepareforEmail=replace(prepareforEmail,"</a>","</a>" & vbcrlf,1,-1,1)
-prepareforEmail=replace(prepareforEmail,"</td>","</td>" & vbcrlf,1,-1,1)
-prepareforEmail=replace(prepareforEmail,"</tr>","</tr>" & vbcrlf,1,-1,1)
 end function
 function show(value)
 if isleeg(value) then
