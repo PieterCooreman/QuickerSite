@@ -91,7 +91,7 @@ select case convertStr(gallery.sType)
 <tr><td class=QSlabel><%=l("browsepicsby")%>:</td><td><select name="iBrowseBy"><%=numberList(1,500,1,gallery.iBrowseBy)%></select></td></tr>
 <tr><td class=QSlabel><%=l("thumbsize")%>:</td><td><select name="iThumbSize"><%=numberList(10,800,1,gallery.iThumbSize)%></select>&nbsp;pixels</td></tr>
 <tr><td class=QSlabel><%=l("fsr")%></td><td><input type="checkbox" name="bFSR" value="1" <%=convertChecked(gallery.bFSR)%> /></td></tr>
-<tr><td class=QSlabel><%=l("resizepicto")%>:</td><td><select name="iFullImageSize"><%=numberList(320,1280,16,gallery.iFullImageSize)%></select> px</td></tr>
+<tr><td class=QSlabel><%=l("resizepicto")%>:</td><td><select name="iFullImageSize"><%=numberList(320,1920,16,gallery.iFullImageSize)%></select> px</td></tr>
 <tr><td class=QSlabel><%=l("next")%>:</td><td><input type="text" size=40 maxlength="200" name="sNextLink" value="<%=sanitize(gallery.sNextLink)%>" /></td></tr>
 <tr><td class=QSlabel><%=l("previous")%>:</td><td><input type="text" size=40 maxlength="200" name="sPreviousLink" value="<%=sanitize(gallery.sPreviousLink)%>" /></td></tr>
 <tr><td class=QSlabel><%=l("expl_labelfullimage")%>:</td><td><input type="text" size=40 maxlength="200" name="sFullImage" value="<%=sanitize(gallery.sFullImage)%>" /></td></tr>

@@ -12,3 +12,7 @@ asp/config/web_config.asp
 db/QuickerLabels.mdb
 db/QuickerLabels.mdb
 *.mdb
+db/QuickerSite.mdb
+db/QuickerLabels.mdb
+asp/config/web_config.asp
+web.config
