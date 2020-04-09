@@ -1,5 +1,13 @@
-
 <%
+
+function removeCRB(value)
+
+	'remove Code Render Blocks
+
+	value=replace(value,"<" & "%","",1,-1,1)
+	removeCRB=replace(value,"%" & ">","",1,-1,1)	
+
+end function	
 
 function QS_iFrameYT(input)
 	'this function converts a youtube url to an iframed youtube movie

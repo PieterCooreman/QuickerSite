@@ -247,11 +247,17 @@ function executeConstant(sScript,testMode,sParameters,sGlobal)
 on error resume next
 if customer.bApplication then
 if not isLeeg(sGlobal) then
+
+sGlobal=removeCRB(sGlobal)
+
 executeGlobal(treatConstants(sGlobal,true))
 end if
 dim arrSc
 arrSc=split(sScript,QS_VBScriptIdentifier)
 sScript=treatConstants(arrSc(0),true)
+
+sScript=removeCRB(sScript)
+
 dim pars
 pars=treatConstants(arrSc(1),true)
 if isLeeg(pars) then pars="dummyPar"
