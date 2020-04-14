@@ -4,8 +4,8 @@ Option Explicit
 
 startTimer=timer()
 Response.Buffer				= true
-session.Timeout				= 120
-server.ScriptTimeout		= 800 'seconds: needed for uploading bigger pictures/files!
+session.Timeout				= 30
+server.ScriptTimeout		= 800
 const C_QS_VERSION			= "4.3"
 const QS_CHARSET			= "utf-8"
 const C_FCKEDITOR			= "fckeditor266"
@@ -15,7 +15,6 @@ const C_INNOVAEDITOR		= "InnovaStudio35"
 editPage					= false
 defaultasp					= "default.asp"
 
-QS_GL						= false 'QS Deluxe Edition?
 QS_ASPX						= true 'use aspx features?
 
 dim QS_EDITOR
@@ -148,8 +147,8 @@ set customer=new cls_customer
 customer.pick(cId)
 
 dim startTimer,SQL2005_SERVER,SQL2005_DB,SQL2005_UID,SQL2005_PWD, blockDefaultPW, printReplies, manyContacts,sNewTemplatesURL,bUseOneIISsite,iForceReload,bAddImageToEmail,sAddImageUrl,sBrowseOnlineTemplatesUrl
-dim execBeforePageLoad, execAfterPageLoad, QS_GL, QS_ASPX, QS_DBS, C_DATABASE, C_DATABASE_LABELS,MySQL_PORT,MySQL_SERVER,sNewTemplatesPath,bLoadConstants,sOWBodyBGColor,bUseArtLoginTemplate,sCBExtUrl,saveHiddenValues
-dim MySQL_DB,MySQL_UID,MySQL_PWD,MySQL_OPTION, pagetoemail, pagetoemailbody, QS_enableCookieMode, editPage, bThemeEmbed, sAffArtisteer,defaultasp,sMetaTagRefresh,cPopup,bNOPopup,bBrowseOnlineTemplates,i404TemplateID
+dim execBeforePageLoad, execAfterPageLoad, QS_ASPX, QS_DBS, C_DATABASE, C_DATABASE_LABELS,MySQL_PORT,MySQL_SERVER,sNewTemplatesPath,bLoadConstants,sOWBodyBGColor,bUseArtLoginTemplate,sCBExtUrl,saveHiddenValues
+dim MySQL_DB,MySQL_UID,MySQL_PWD,MySQL_OPTION, pagetoemail, pagetoemailbody, QS_enableCookieMode, editPage, bThemeEmbed, defaultasp,sMetaTagRefresh,cPopup,bNOPopup,bBrowseOnlineTemplates,i404TemplateID
 bLoadConstants=true
 bThemeEmbed=false
 bUseOneIISsite=false
@@ -158,7 +157,6 @@ bUseArtLoginTemplate=false
 bNOPopup=false
 saveHiddenValues=false
 iForceReload=0
-QS_GL=true 'QuickerSite Deluxe-edition? true or false
 QS_EDITOR=4 '4: ckEditor
 QS_ASPX=true 'use ASP.NET features - basically the picture thumbnailer
 QS_enableCookieMode=true 'set to true in case your host recycles your application every x minutes

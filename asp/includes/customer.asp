@@ -223,9 +223,7 @@ bShoppingCart=rs("bShoppingCart")
 if isLeeg(sQSAccordionMain) then sQSAccordionMain="font-family: inherit; " & vbcrlf & "font-size: 1em;"
 if isLeeg(sQSAccordionHeader) then sQSAccordionHeader="background-color: #DDDDDD;" & vbcrlf & "color: #000000;" & vbcrlf & "font-weight: 700;"
 if isLeeg(sQSAccordionContent) then sQSAccordionContent="background-color: #FFFFFF;" & vbcrlf & "color: #000000;"
-if convertGetal(iPackageID)<>0 then
-QS_GL=false
-end if
+
 if request.querystring("QSbcwp")=1 then
 bCookieWarning=true
 end if

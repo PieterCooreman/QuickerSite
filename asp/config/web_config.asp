@@ -87,7 +87,6 @@ const C_DEV=false 'True takes your QuickerSite(s) offline (for upgrading purpose
 sNewTemplatesPath=server.MapPath (C_VIRT_DIR & "/templates")
 sNewTemplatesURL=C_VIRT_DIR & "/templates"
 bBrowseOnlineTemplates=true 'enables the download of new templates
-sAffArtisteer=""
 %> 
 
 
