@@ -117,7 +117,6 @@ set headerDictionary=server.createobject("scripting.dictionary")
 <!-- #include file="includes/showSiteMap.asp"-->
 <!-- #include file="includes/ckeditor.asp"-->
 <!-- #include file="includes/breadcrumbs.asp"-->
-<!-- #include file="includes/contentrotator.asp"-->
 <!-- #include file="includes/fullsearch.asp"-->
 <!-- #include file="includes/googlemap.asp"-->
 <!-- #include file="includes/siteSearchTypeList.asp"-->
