@@ -4,18 +4,35 @@
 <!-- #include file="includes/header.asp"-->
 <!-- #include file="bs_initBack.asp"-->
 <!-- #include file="bs_header.asp"--><%=getBOHeader("")%>
-<%if convertGetal(decrypt(request.querystring("iDeleteLIID")))<>0 then
-checkCSRf()
+<%
+if convertGetal(decrypt(request.querystring("iDeleteLIID")))<>0 then
+	checkCSRf()
+	set listitem=new cls_page
+	listitem.pick(convertGetal(decrypt(request.querystring("iDeleteLIID"))))
+	if convertGetal(listitem.iId)<>0 then
+		listitem.bDeleted=true
+		listitem.bOnline=false
+		if listitem.save then
+			Response.Redirect ("bs_listPage.asp?fbMessage=fb_topicremoved&iID=" & encrypt(listitem.iListPageID))
+		end if
+	end if
+end if
+
 dim listitem
-set listitem=new cls_page
-listitem.pick(convertGetal(decrypt(request.querystring("iDeleteLIID"))))
-if convertGetal(listitem.iId)<>0 then
-listitem.bDeleted=true
-listitem.bOnline=false
-if listitem.save then
-Response.Redirect ("bs_listPage.asp?fbMessage=fb_topicremoved&iID=" & encrypt(listitem.iListPageID))
-end if
-end if
+if convertGetal(decrypt(request.querystring("iCopyIid")))<>0 then
+	checkCSRf()
+	
+	set listitem=new cls_page
+	listitem.pick(convertGetal(decrypt(request.querystring("iCopyIid"))))
+	if convertGetal(listitem.iId)<>0 then
+		listitem.iId=null
+		listitem.sCode=""
+		listitem.sUserFriendlyURL=""
+		listitem.sTitle=listitem.sTitle & " (copy)"
+		if listitem.save then
+			Response.Redirect ("bs_listPage.asp?iID=" & encrypt(listitem.iListPageID))
+		end if
+	end if
 end if
 
 set listitem=new cls_page
@@ -48,6 +65,10 @@ if convertBool(customer.bListItemPic) then
 		Response.Write "onClosed:function(){location.reload(true);}});"" class=""art-button"" href=""#"">" & l("picture") & "</a>"
 	end if
 end if
+
+Response.Write "&nbsp;<a onclick=""javascript:return confirm('" & l("areyousure") & "');"" "
+Response.Write "href=""bs_ListPage.asp?QSSEC=" & secCode & "&amp;iId=" & encrypt(page.iId) & "&amp;iCopyIID=" 
+Response.Write encrypt(item) & """ class=""art-button"">" & l("copy") & "</a>"
 
 Response.Write "&nbsp;<a onclick=""javascript:return confirm('" & l("deletecomplete") & "');"" "
 Response.Write "href=""bs_ListPage.asp?QSSEC=" & secCode & "&amp;iId=" & encrypt(page.iId) & "&amp;iDeleteLIID=" 
