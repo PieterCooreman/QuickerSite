@@ -1,20 +1,2 @@
-User-agent: Googlebot
-Disallow:
-
-User-agent: MSNBot
-Disallow:
-
-User-agent: Bingbot
-Disallow:
-
-User-agent: Slurp
-Disallow:
-
 User-agent: *
-Disallow: /
-
-user-agent: AhrefsBot
-disallow: /
-
-User-agent: *
-Crawl-delay: 10
+Disallow:
