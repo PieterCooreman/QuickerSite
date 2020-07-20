@@ -313,8 +313,8 @@ bCookieWarning	= convertBool(bCookieWarning)
 sFooter=removeEmptyP(sFooter)
 sTopheader=removeEmptyP(sTopheader)
 if resetDBConn then
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 end if
 dim rs
 set rs = db.GetDynamicRS
@@ -499,8 +499,8 @@ on error goto 0
 end if
 end function
 private sub initialize()
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 'create Homepage
 dim homepage
 set homepage = db.GetDynamicRS
@@ -525,8 +525,8 @@ end if
 homepage.Update 
 homepage.close
 Set homepage = nothing
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 set homepage = db.GetDynamicRS
 homepage.Open "select * from tblPage where 1=2"
 homepage.AddNew
@@ -1410,8 +1410,8 @@ set rs=db.execute("update tblForm set sTo='" & cleanup(webmasterEmail) & "' wher
 set rs=nothing
 end function
 public sub copyTable (tablename,custCol,oldID,newID)
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 'hier hebben we de nieuwe iId
 dim sql, rs, rsNew, field
 set rs=db.getDynamicRS

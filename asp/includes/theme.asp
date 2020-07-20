@@ -386,7 +386,7 @@ buildSearch=buildSearch	&"<input type='hidden' name='iId' value='"&encrypt(selec
 buildSearch=buildSearch	&"<input type='hidden' name='themeAction' value='"&cSearchTheme&"' />"
 buildSearch=buildSearch	&"<table align='center' cellpadding=5 border=0>"
 buildSearch=buildSearch	& "<tr>"
-buildSearch=buildSearch	& "<td width='50%' align='right' valign='middle'><input type=""text"" maxlength=""60"" id='sValueThemeSearch' name='sValueThemeSearch' value="""& quotrep(request.form("sValueThemeSearch")) &""" /></td>"
+buildSearch=buildSearch	& "<td width='50%' align='right' valign='middle'><input required type=""text"" maxlength=""60"" id='sValueThemeSearch' name='sValueThemeSearch' value="""& quotrep(request.form("sValueThemeSearch")) &""" /></td>"
 buildSearch=buildSearch	& "<td width='50%' align='left' valign='middle'><input class=""art-button"" type='submit' name='dummy' value="""&l("search")&""" /></td>"
 'document.getElementById('theInput').focus(); 
 buildSearch=buildSearch	& "</tr>"
@@ -526,7 +526,7 @@ end if
 postTopic=postTopic&"<table align=center>"
 postTopic=postTopic& "<tr>"
 postTopic=postTopic& "<td class='QSlabel'>"&l("subject")&":*</td>"
-postTopic=postTopic& "<td><input type='text' style='width:100%' size='60' maxlength='100' name='sSubject' value=" & """" & sanitize(postObj.sSubject) & """" &" /></td>"
+postTopic=postTopic& "<td><input required type='text' style='width:100%' size='60' maxlength='100' name='sSubject' value=" & """" & sanitize(postObj.sSubject) & """" &" /></td>"
 postTopic=postTopic& "</tr>"
 postTopic=postTopic& "<tr>"
 postTopic=postTopic& "<td class='QSlabel'>"&l("text")&":*</td>"
@@ -615,7 +615,7 @@ postTopic=postTopic & "</select></td><tr>"
 end if
 postTopic=postTopic& "<tr>"
 postTopic=postTopic& "<td class='QSlabel'>&nbsp;</td>"
-postTopic=postTopic& "<td><img src='" & C_DIRECTORY_QUICKERSITE & "/asp/includes/captcha.asp' alt='' style='vertical-align: middle;border-style:none;margin:0px 6px 0px 0px' /><input style='width:63px' type='text' size='6' maxlength='4' name='captcha' />&nbsp;" & l("captcha") &"</td>"
+postTopic=postTopic& "<td><img src='" & C_DIRECTORY_QUICKERSITE & "/asp/includes/captcha.asp' alt='' style='vertical-align: middle;border-style:none;margin:0px 6px 0px 0px' /><input style='width:63px' type='text' size='6' maxlength='4' name='captcha' required />&nbsp;" & l("captcha") &"</td>"
 postTopic=postTopic& "</tr>"
 if isLeeg(postObj.iId) and iSubLevel>=QS_theme_sublevel_authortopic and not logon.contact.bHasSubscribedToTheme(iId) then
 dim defaultSub

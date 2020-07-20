@@ -14,7 +14,7 @@ pageBody=pageBody& "<a href=" & """" & "mailto:"& customer.webmasterEmail &"?sub
 pageBody=pageBody& "<div id='QS_form'>"
 pageBody=pageBody& "<div class='QS_fieldline'>"
 pageBody=pageBody& "<div class='QS_fieldlabel'>"&l("password")&":</div>"
-pageBody=pageBody& "<div class='QS_fieldvalue'><input style=""width:200px"" size='8' maxlength='15' type='password' name='sPw' value='' /></div>"
+pageBody=pageBody& "<div class='QS_fieldvalue'><input style=""width:200px"" size='8' maxlength='15' type='password' name='sPw' value='' required /></div>"
 pageBody=pageBody& "</div>"
 pageBody=pageBody& "<div class='QS_fieldline'>"
 pageBody=pageBody& "<div class='QS_fieldlabel'>&nbsp;</div>"

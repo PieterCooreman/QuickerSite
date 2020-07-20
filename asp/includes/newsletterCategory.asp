@@ -3,7 +3,7 @@
 Public iId,sName,sSignupForm,sUnsubscribeFB,sUnsubscribeFBTitle,sWelcomeMessage,bRequireBoth,sErrorMessage,sNotifEmail
 Private Sub Class_Initialize
 On Error Resume Next
-sSignupForm="<form action=""default.asp"" method=""post"" id=""nl{ID}"" name=""nl{ID}"">" & vbcrlf & "{NL_HIDDENFIELD_DO_NOT_TOUCH}" & vbcrlf & "<table border=""0"">" & vbcrlf & "<tr>" & vbcrlf & "<td>Name:</td>" & vbcrlf & "<td><input name=""{N}"" type=""text"" value=""{NL_NAME}"" /></td>" & vbcrlf & "</tr>" & vbcrlf & "<tr>" & vbcrlf & "<td>Email:</td>" & vbcrlf & "<td><input name=""{E}"" type=""text"" value=""{NL_EMAIL}"" /></td>" & vbcrlf & "</tr>" & vbcrlf & "<tr>" & vbcrlf & "<td> </td>" & vbcrlf & "<td><input class=""art-button"" onclick=""{AJAX}"" type=""button"" value=""Submit"" name=""dummy"" /></td>" & vbcrlf & "</tr>" & vbcrlf & "</table>" & vbcrlf & "</form>"
+sSignupForm="<form action=""default.asp"" method=""post"" id=""nl{ID}"" name=""nl{ID}"">" & vbcrlf & "{NL_HIDDENFIELD_DO_NOT_TOUCH}" & vbcrlf & "<table border=""0"">" & vbcrlf & "<tr>" & vbcrlf & "<td>Name:</td>" & vbcrlf & "<td><input name=""{N}"" type=""text"" value=""{NL_NAME}"" /></td>" & vbcrlf & "</tr>" & vbcrlf & "<tr>" & vbcrlf & "<td>Email:</td>" & vbcrlf & "<td><input name=""{E}"" type=""email"" value=""{NL_EMAIL}"" required /></td>" & vbcrlf & "</tr>" & vbcrlf & "<tr>" & vbcrlf & "<td> </td>" & vbcrlf & "<td><input class=""art-button"" onclick=""{AJAX}"" type=""button"" value=""Submit"" name=""dummy"" /></td>" & vbcrlf & "</tr>" & vbcrlf & "</table>" & vbcrlf & "</form>"
 sUnsubscribeFB="<p>Dear [NL_NAME],</p><p>We have removed your email address <strong>[NL_EMAIL]</strong> from our mailing list.</p><p>" & customer.webmaster &"</p>"
 sUnsubscribeFBTitle="So sorry to see you go..."
 sWelcomeMessage="<p>Hello <b>[NL_NAME]</b>! Your email address <b>[NL_EMAIL]</b> is now added to our mailing list.</p>"
@@ -64,8 +64,8 @@ else
 Save=false
 exit function
 end if
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 dim rs
 set rs = db.GetDynamicRS
 if isLeeg(iId) then

@@ -607,7 +607,7 @@ if convertBool(themeObj.bSmileys) then
 buildPost=buildPost& "<div style='margin:2px'>" & shortListOfSmilies("replyForm" & encrypt(iId) & ".replyTopic" & encrypt(iId)) & "</div>"
 end if
 if btreatasAN  then
-buildPost=buildPost&"</td></tr><tr><td style=""border-style:none"" align=""left""><table style=""border-style:none""><tr><td style=""border-style:none"">" & l("captcha") & "</td><td style=""border-style:none""><img style=""border:0"" alt=""captcha"" src=""" & C_DIRECTORY_QUICKERSITE & "/asp/includes/captcha.asp"" border=""0"" /></td><td style=""border-style:none""><input style=""width:63px"" type=""text"" value="""" size=""6"" maxlenght=""4"" name=""captcha""/></td></tr></table></td></tr><tr><td style=""border-style:none"" align=""left"">"
+buildPost=buildPost&"</td></tr><tr><td style=""border-style:none"" align=""left""><table style=""border-style:none""><tr><td style=""border-style:none"">" & l("captcha") & "</td><td style=""border-style:none""><img style=""border:0"" alt=""captcha"" src=""" & C_DIRECTORY_QUICKERSITE & "/asp/includes/captcha.asp"" border=""0"" /></td><td style=""border-style:none""><input style=""width:63px"" type=""text"" value="""" size=""6"" maxlenght=""4"" name=""captcha"" required /></td></tr></table></td></tr><tr><td style=""border-style:none"" align=""left"">"
 end if
 buildPost=buildPost&"<input class=""art-button"" type='submit' onclick='javascript:this.disabled=true;replyForm"&encrypt(iId)&".submit();' name='dummy' value=" & """" & l("reply") & """" &" />&nbsp;"
 buildPost=buildPost&"</td>"

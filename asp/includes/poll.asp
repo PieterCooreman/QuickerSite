@@ -151,8 +151,8 @@ else
 Save=false
 exit function
 end if
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 dim rs
 set rs = db.GetDynamicRS
 if isLeeg(iId) then
@@ -299,8 +299,8 @@ end property
 public sub registerVote
 on error resume next
 if canvote then
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 dim rs
 set rs = db.GetDynamicRS
 rs.Open "select * from tblPollVote where 1=2"

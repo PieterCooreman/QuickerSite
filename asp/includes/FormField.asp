@@ -101,8 +101,8 @@ else
 save=false
 exit function
 end if
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 set rs = db.GetDynamicRS
 if isLeeg(iId) then
 rs.Open "select * from tblFormField where 1=2"
@@ -300,7 +300,13 @@ On Error Goto 0
 next
 Dim key
 For each key in list
-showSelectedRadio = showSelectedRadio & "<input type='radio'"
+showSelectedRadio = showSelectedRadio & "<input "
+
+if bMandatory then
+	showSelectedRadio = showSelectedRadio & " required "
+end if
+
+showSelectedRadio = showSelectedRadio & " type='radio'"
 If convertStr(quotRep(selected))=convertStr(quotRep(key)) Then
 showSelectedRadio = showSelectedRadio & " checked='checked' "
 End If
@@ -334,7 +340,13 @@ next
 Dim key
 For each key in list
 'response.write selectedValues.count
-showSelectedRadioCB = showSelectedRadioCB & "<input type=""checkbox"""
+showSelectedRadioCB = showSelectedRadioCB & "<input "
+
+if bMandatory then
+	showSelectedRadioCB = showSelectedRadioCB & " required "
+end if
+
+showSelectedRadioCB = showSelectedRadioCB & " type=""checkbox"""
 If selectedValues.exists(convertStr(key)) Then
 showSelectedRadioCB = showSelectedRadioCB & " checked=""checked"" "
 End If
