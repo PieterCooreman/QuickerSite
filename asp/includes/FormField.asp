@@ -1,5 +1,8 @@
 
-<%class cls_FormField
+<%
+private labelRadioRunner
+labelRadioRunner=0
+class cls_FormField
 Public iId,iFormID,sName,sType,sValues,iRang,bMandatory,iMaxFileSize,iRows,iCols,iSize,iMaxlength,sRadioPlacement,bAutoResponder,sFileLocation,sAllowedExtensions,bUseForSending,bAllowMS
 Public sPlaceholder
 Private newRang,oldRang
@@ -289,6 +292,9 @@ End If
 showSelected = showSelected & ">" & quotRep(key) & "</option>"
 Next
 End Function
+
+
+
 Public Function showSelectedRadio(selected)
 dim listArr, i, list
 set list=server.CreateObject ("scripting.dictionary")
@@ -300,6 +306,7 @@ On Error Goto 0
 next
 Dim key
 For each key in list
+labelRadioRunner=labelRadioRunner+1
 showSelectedRadio = showSelectedRadio & "<input "
 
 if bMandatory then
@@ -310,8 +317,8 @@ showSelectedRadio = showSelectedRadio & " type='radio'"
 If convertStr(quotRep(selected))=convertStr(quotRep(key)) Then
 showSelectedRadio = showSelectedRadio & " checked='checked' "
 End If
-showSelectedRadio = showSelectedRadio & " name='" & encrypt(iId) & "' value="& """" & quotRep(key) & """"
-showSelectedRadio = showSelectedRadio & " /> "& key 
+showSelectedRadio = showSelectedRadio & " name='" & encrypt(iId) & "' id=""qsRadioID" & labelRadioRunner & """ value="& """" & quotRep(key) & """"
+showSelectedRadio = showSelectedRadio & " /> <label for=""qsRadioID" & labelRadioRunner & """>" & key & "</label>"
 if sRadioPlacement=pl_Vertical then
 showSelectedRadio = showSelectedRadio & "<br />"
 else
@@ -339,6 +346,7 @@ On Error Goto 0
 next
 Dim key
 For each key in list
+labelRadioRunner=labelRadioRunner+1
 'response.write selectedValues.count
 showSelectedRadioCB = showSelectedRadioCB & "<input "
 
@@ -350,8 +358,8 @@ showSelectedRadioCB = showSelectedRadioCB & " type=""checkbox"""
 If selectedValues.exists(convertStr(key)) Then
 showSelectedRadioCB = showSelectedRadioCB & " checked=""checked"" "
 End If
-showSelectedRadioCB = showSelectedRadioCB & " name=""" & encrypt(iId) & """ value="& """" & quotRep(key) & "_QSDELIMITER"""
-showSelectedRadioCB = showSelectedRadioCB & " /> "& key 
+showSelectedRadioCB = showSelectedRadioCB & " name=""" & encrypt(iId) & """ id=""qsRadioID" & labelRadioRunner & """ value="& """" & quotRep(key) & "_QSDELIMITER"""
+showSelectedRadioCB = showSelectedRadioCB & " /> <label for=""qsRadioID" & labelRadioRunner & """>"& key & "</label>" 
 if sRadioPlacement=pl_Vertical then
 showSelectedRadioCB = showSelectedRadioCB & "<br />"
 else
