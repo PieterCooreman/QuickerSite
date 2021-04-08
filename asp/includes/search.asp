@@ -93,7 +93,7 @@ dim rs
 set rs=db.execute(sql)
 dim page,pCounter
 pCounter=1
-while not rs.eof and pCounter<100
+while not rs.eof and pCounter<250
 set page=new cls_page
 page.pick(rs(0))
 results.Add page.iId, page
