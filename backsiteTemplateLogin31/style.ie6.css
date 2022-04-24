@@ -1,6 +1,6 @@
 /* begin Page */
 
-/* Created by Artisteer v3.1.0.48375 */
+/* Created by Artisteer v3.1.0.46558 */
 
 .cleared {
    width:1px;
@@ -57,7 +57,7 @@ div.art-headerobject{
 
 /* begin Box, Sheet */
 .art-sheet {
-   background:#FCFCFC;
+   background:#F2F2F2;
 }
 /* end Box, Sheet */
 
@@ -77,19 +77,19 @@ div.art-headerobject{
 
 /* begin Box, Block */
 .art-block {
-   background:#EAEBEA;
+   background:#B3D47A;
 }
 /* end Box, Block */
 
 /* begin BlockHeader */
 .art-blockheader {
-   background:#76727E;
+   background:#FFFFFF;
 }
 /* end BlockHeader */
 
 /* begin Box, BlockContent */
 .art-blockcontent {
-   background:#EAEBEA;
+   background:#B3D47A;
 }
 .art-blockcontent-body ul li{
    height: 1%;
@@ -111,7 +111,7 @@ div.art-headerobject{
 
 /* begin Box, Post */
 .art-post {
-   background:#FCFCFC;
+   background:#F2F2F2;
 }
 /* end Box, Post */
 
@@ -141,7 +141,7 @@ div.art-headerobject{
 }
 .art-footer{
    zoom:1;
-   background:#28272B;
+   background:#000000;
 }
 
 .art-footer-text

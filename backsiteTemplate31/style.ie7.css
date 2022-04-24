@@ -82,7 +82,7 @@
 
 /* begin Header */
 .art-header {
-   zoom:expression(runtimeStyle.zoom=1,insertBefore(document.createElement('div'),firstChild).className='art-header-png',insertBefore(document.createElement('div'),firstChild).className='art-header-jpeg');
+   zoom:expression(runtimeStyle.zoom=1,insertBefore(document.createElement('div'),firstChild).className='art-header-png');
    z-index: 1;
 }
 
@@ -98,18 +98,6 @@
    background-position:top center;
 }
 
-.art-header-jpeg
-{
-   position: absolute;
-   z-index:-1;
-   top: 0;
-   left:5px;
-   right:5px;
-   height: 100px;
-   background-image: url('images/header.jpg');
-   background-repeat: no-repeat;
-   background-position: center center;
-}
 /* end Header */
 
 /* begin Menu */
@@ -174,7 +162,7 @@ ul.art-hmenu>li>a:hover>span.art-hmenu-r, ul.art-hmenu>li:hover>a>span.art-hmenu
    background-position: center right;
 }
 ul.art-hmenu>li>a:hover, ul.art-hmenu>li:hover>a{
-   color: #DBDCDB;
+   color: #92C83E;
 }
 
 /* end MenuItem */
@@ -190,7 +178,7 @@ ul.art-hmenu>li>span.art-hmenu-separator
    top:0;
    left:  -1px;
    width: 1px;
-   height: 38px;
+   height: 29px;
    background: url('images/menuseparator.png') center center no-repeat;
 }
 /* end MenuSeparator */

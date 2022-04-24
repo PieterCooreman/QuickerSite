@@ -13,30 +13,30 @@
 '########################################################################################
 
 'in case you need a different name for your CMS, set it here:
-const MYQS_name="QuickerSite"
-const MYQS_slogan="CMS the fun way!"
+const MYQS_name="Firstfruits Webdesign Ltd"
+const MYQS_slogan="Responsive Websites Built with You in Mind"
 
 'You might also want to change the URL on top of each page in the backsite:
-const MYQS_url="http://www.quickersite.com/"
+const MYQS_url="http://www.firstfruitswebdesign.com/"
 
 'the META-TAG Generator that is auto-generated in most pages:
-const MYQS_GENERATOR="QuickerSite CMS - visit www.quickersite.com"
+const MYQS_GENERATOR="Firstfruits CMS - visit www.firstfruitswebdesign.com"
 
 'Url to your support pages for your CMS (when clicking the Help-image in the backsite)
-const MYQS_urlSupport="http://www.quickersite.com/r/?sCode=SUPPORT"
+const MYQS_urlSupport="https://www.firstfruitswebdesign.com/support.html"
 
 'Url to your support page regarding Templates!
-const MYQS_urlTemplates="http://www.quickersite.com/r/?sCode=TEMPLATES"
+const MYQS_urlTemplates="https://www.firstfruitswebdesign.com/support.html"
 
 'Url to your support page regarding User Friendly URLS
-const MYQS_urlUFLs="http://www.quickersite.com/r/ufl"
+const MYQS_urlUFLs="http://www.firstfruitswebdesign.com/SupportRequest"
 
 'Footer
-const MYQS_FOOTER="<p>Copyright &copy; QuickerSite 2014. All Rights Reserved.<br />Visit <a style=""color:#EEE"" target=""_blank"" href=""http://www.quickersite.com"">www.quickersite.com</a></p>"
+const MYQS_FOOTER="<p>Copyright &copy; Firstfruits Webdesign Ltd 2011. All Rights Reserved.</p>"
 
 'Icon Colors
-const MYQS_IconColor="#3A383E"
-const MYQS_IconHoverColor="#70919A"
+const MYQS_IconColor="#262B31"
+const MYQS_IconHoverColor="#78AD34"
 
 
 function artHeaderPart
@@ -68,7 +68,7 @@ function artTopBannerAndMenu
                 <div class="art-headerobject"></div>
                 <div class="art-logo">
                                  <h1 class="art-logo-name"><a href="#"><%=MYQS_name%></a></h1>
-                                                 <h2 class="art-logo-text"><%=MYQS_slogan%></h2>
+                                                 <h2 class="art-logo-text"><%=MYQS_slogan%> (V<%=C_QS_VERSION%>)</h2>
                                 </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@ function artTopBannerAndMenuLOGIN
                 <div class="art-headerobject"></div>
                 <div class="art-logo">
                                  <h1 class="art-logo-name"><a href="#"><%=MYQS_name%></a></h1>
-                                                 <h2 class="art-logo-text"><%=MYQS_slogan%></h2>
+                                                 <h2 class="art-logo-text"><%=MYQS_slogan%> (QSCMS V<%=C_QS_VERSION%>)</h2>
                                 </div>
                 </div>
             </div>
