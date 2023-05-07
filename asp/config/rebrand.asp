@@ -32,7 +32,7 @@ const MYQS_urlTemplates="http://www.quickersite.com/r/?sCode=TEMPLATES"
 const MYQS_urlUFLs="http://www.quickersite.com/r/ufl"
 
 'Footer
-const MYQS_FOOTER="<p>Copyright &copy; QuickerSite 2014. All Rights Reserved.<br />Visit <a style=""color:#EEE"" target=""_blank"" href=""http://www.quickersite.com"">www.quickersite.com</a></p>"
+const MYQS_FOOTER="<p>Copyright &copy; QuickerSite 2023. All Rights Reserved.<br />Visit <a style=""color:#EEE"" target=""_blank"" href=""http://www.quickersite.com"">www.quickersite.com</a></p>"
 
 'Icon Colors
 const MYQS_IconColor="#3A383E"
