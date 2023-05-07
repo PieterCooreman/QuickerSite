@@ -1,5 +1,7 @@
 
 <%function dumpJavaScript(includeJQuery)
+
+
 dumpJavaScript="<script type=""text/javascript""><!--"& vbcrlf
 dumpJavaScript=dumpJavaScript&"function openPopUpWindow(windowName,fileName,width,height) {var popUp = window.open(fileName,windowName,'top=10,left=10,toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=1,top=50,left=50,target=_new,width='+width+',height='+height)} "
 dumpJavaScript=dumpJavaScript&"function getIcon2(sCol1,sCol2,sCol3,iMode){try{var sColor;if (iMode==0){sColor='"&customer.publicIconColor&"';}else{sColor='"&customer.publicIconColorHover&"';}document.getElementById(sCol1).style.backgroundColor = sColor;document.getElementById(sCol2).style.backgroundColor = sColor;document.getElementById(sCol3).style.backgroundColor = sColor;}catch(err){}}"
@@ -13,6 +15,10 @@ dumpJavaScript=dumpJavaScript&"document.write ('onmouseout=" & """" & "javascrip
 dumpJavaScript=dumpJavaScript&"document.write ('alt=" & """" & "'+sLabel+'" & """" & " src=" & """" & quotRepJS(C_DIRECTORY_QUICKERSITE)&"\/fixedImages\/public\/'+sType+'.gif" & """" & " border=0><\/a><\/TD><\/TR>');"
 dumpJavaScript=dumpJavaScript&"document.write ('<TR><TD width=1><\/TD><TD width=14 class=pI id=" & """" & "'+sUniqueKey+'3" & """" & "><\/TD><TD width=1><\/TD><\/TR><\/TABLE>');}catch(err){}}"
 dumpJavaScript=dumpJavaScript&"//--></script>"& vbcrlf
+
+dumpJavaScript=dumpJavaScript & inputCssTweak & vbcrlf
+
+
 if includeJQuery then
 'JQUERY 183
 dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"" src=""https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js""></script>" & vbcrlf
@@ -128,9 +134,27 @@ case else
 dumpJavaScript=dumpJavaScript&"background: url(" & C_VIRT_DIR &  Application("QS_CMS_userfiles") & customer.sPeelImage & ") no-repeat right top;"
 end select
 dumpJavaScript=dumpJavaScript&"}" & vbcrlf
+dumpJavaScript=dumpJavaScript & vbcrlf
+
 dumpJavaScript=dumpJavaScript&"</style>" & vbcrlf
 end if
 end function
+
+
+
+function inputCssTweak
+
+inputCssTweak="<style>"
+inputCssTweak=inputCssTweak & "input,textarea,select,radio,checkbox "
+inputCssTweak=inputCssTweak & "{padding:5px;border-radius:4px;border:1px solid #AAA} " & vbcrlf
+inputCssTweak=inputCssTweak & "</style>"
+
+end function
+
+
+
+
+
 function textCounterJS
 textCounterJS="<script type=""text/javascript"">"& vbcrlf
 textCounterJS=textCounterJS&"function textCounter(field, countfield, maxlimit){if (field.value.length > maxlimit){alert('"
