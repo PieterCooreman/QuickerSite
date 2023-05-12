@@ -3,34 +3,49 @@
 
 function buildMenu (byref arrMenu, btn, iCols)
 
-	buildMenu="<table width=500 align=center border=0>"
+	dim f
+
+	buildMenu="<table width=""500"" align=center border=0>"		
 	buildMenu=buildMenu&"<tr>"
 	
-	dim f, m
-	
 	for f=lbound(arrMenu,2) to ubound(arrMenu,2)
 		if not isLeeg(arrMenu(0,f)) then
-			buildMenu=buildMenu&"<td align=center style='width:"&round((95/iCols),0)&"%'>"
-		if btn=arrMenu(0,f) then
-			buildMenu=buildMenu&"<a style=""text-decoration: none;"" target=" & """" & arrMenu(3,f) & """" &" href=" & """" & arrMenu(1,f) & """" &"><img name="& arrMenu(0,f) &" src='"&C_DIRECTORY_QUICKERSITE&"/fixedImages/backsite/"& arrMenu(0,f) &".jpg' border=0 alt=""" & quotrep(arrMenu(2,f)) &""" /></a>"
-		else
-			buildMenu=buildMenu&"<a style=""text-decoration: none;"" target=" & """" & arrMenu(3,f) & """" & " onmouseover="& """"& "javascript:document."& arrMenu(0,f) &".src='" & C_DIRECTORY_QUICKERSITE & "/fixedImages/backsite/"& arrMenu(0,f) &".jpg'"& """" &" onmouseout=" & """" & "javascript:document."& arrMenu(0,f) &".src='" & C_DIRECTORY_QUICKERSITE &"/fixedImages/backsite/"& arrMenu(0,f) &"BW.jpg'"& """"& " href=" & """" & arrMenu(1,f) & """" &"><img name="& arrMenu(0,f) &" src='"&C_DIRECTORY_QUICKERSITE&"/fixedImages/backsite/"& arrMenu(0,f) &"BW.jpg' border=0 alt=""" & quotrep(arrMenu(2,f)) &""" /></a>"
-		end if
+			buildMenu=buildMenu&"<td align=""center"" style=""width:"&round((95/iCols),1)&"%"">"
+			
+			buildMenu=buildMenu & "<a style=""text-decoration: none;"" "
+			buildMenu=buildMenu & "target=" & """" & arrMenu(3,f) & """" & " href=" & """" & arrMenu(1,f) & """" &">"
+
+			'buildMenu=buildMenu & lcase(arrMenu(0,f)) & "<br>"			
+			
+			buildMenu=buildMenu & "<span class=""material-symbols-outlined"" style=""font-size:40px"">"
+			
+			
+			
+			'hier het icoon toevoegen
+			select case lcase(arrMenu(0,f))
+				
+				case "btn_setupbis","btn_setup","btn_setupi" : buildMenu=buildMenu & "settings"
+				case "btn_statsbis","btn_stats" : buildMenu=buildMenu & "bar_chart"
+				case "btn_securitybis","btn_security" : buildMenu=buildMenu & "security"
+				case "btn_pageelementsbis","btn_pageelements" : buildMenu=buildMenu & "widgets"
+				case "btn_templatebis","btn_template" : buildMenu=buildMenu & "view_quilt"
+				case "btn_contacts" : buildMenu=buildMenu & "group"
+				case "btn_checki" : buildMenu=buildMenu & "preview"
+				case "btn_sentmessages" : buildMenu=buildMenu & "mail"
+				case "btn_intraneti" : buildMenu=buildMenu & "vpn_lock"
+				case "btn_theme" : buildMenu=buildMenu & "forum"
+				
+				
+				
+				
+				
+			end select	
+			
+			
+			buildMenu=buildMenu & "</span><br><b>"& arrMenu(2,f) &"</b></a>"	
+			
 			buildMenu=buildMenu&"</td>"
-		end if
-	next
-	
-	buildMenu=buildMenu&"</tr><tr>"
-	
-	for f=lbound(arrMenu,2) to ubound(arrMenu,2)
-		if not isLeeg(arrMenu(0,f)) then
-			buildMenu=buildMenu&"<td align=center style='width:"&round((95/iCols),1)&"%'>"
-		if btn=arrMenu(0,f) then
-			buildMenu=buildMenu&"<a style=""text-decoration: none;"" target=" & """" & arrMenu(3,f) & """" &" href=" & """" & arrMenu(1,f) & """" &"><b>"& arrMenu(2,f) &"</b></a>"
-		else
-			buildMenu=buildMenu&"<a style=""text-decoration: none;"" target=" & """" & arrMenu(3,f) & """" & " onmouseover="& """"& "javascript:document."& arrMenu(0,f) &".src='" & C_DIRECTORY_QUICKERSITE & "/fixedImages/backsite/"& arrMenu(0,f) &".jpg'"& """" &" onmouseout=" & """" & "javascript:document."& arrMenu(0,f) &".src='" & C_DIRECTORY_QUICKERSITE &"/fixedImages/backsite/"& arrMenu(0,f) &"BW.jpg'"& """"& " href=" & """" & arrMenu(1,f) & """" &"><b>"& arrMenu(2,f) &"</b></a>"
-		end if
-			buildMenu=buildMenu&"</td>"
+			
 		end if
 	next
 	
