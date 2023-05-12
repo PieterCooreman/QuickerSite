@@ -18,8 +18,6 @@ dumpJavaScript=dumpJavaScript&"//--></script>"& vbcrlf
 
 dumpJavaScript=dumpJavaScript & inputCssTweak & vbcrlf
 
-dumpJavaScript=dumpJavaScript & "<link rel=""stylesheet"" href=""https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"" />" & vbcrlf
-
 dumpJavaScript=dumpJavaScript & "<style>.material-symbols-outlined {font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 48}</style>"
 
 if includeJQuery then
