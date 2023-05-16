@@ -23,7 +23,7 @@ sSortBy="recentfirst"
 bRequireValidation=true
 sEmail=customer.webmasterEmail
 sFullTemplate="<div style=""width:95%"">" & vbcrlf & "<div>{ITEMS}</div>" & vbcrlf & "<div style=""width:100%;text-align:center"">{PAGING}</div>" & vbcrlf & "<div>{FORM}</div>" & vbcrlf & "</div>"
-sTemplateForm="<hr /><h3>Leave a message:</h3>{TEMPLATEERROR}<table border=""0"" style=""border-style:none""><tr><td>Your name:*</td><td><input style=""width:100%"" maxlength=""50"" type=""text"" value=""{AUTHOR}"" name=""author""/></td></tr><tr><td>Your email:</td><td><input style=""width:100%"" maxlength=""50"" type=""text"" value=""{EMAIL}"" name=""email""/></td></tr><tr><td>Your message:*</td><td><textarea id=""{ID}"" name=""{ID}"" style=""width:100%"" cols=""40"" rows=""8"">{MESSAGE}</textarea></td></tr><tr><td> </td><td>{SMILEYS}</td></tr><tr><td>Are you human?</td><td>{CAPTCHA} <input style=""width:63px"" type=""text"" name=""captcha"" maxlength=""4"" size=""6"" /></td></tr><tr><td> </td><td>(*) " & l("mandatory") & "</td></tr><tr><td> </td><td><input type=""submit"" class=""art-button"" value=""Submit"" name=""post"" /> <input class=""art-button"" type=""reset"" value=""Reset"" name=""reset"" /></td></tr></table>"
+sTemplateForm="<hr /><h3>Leave a message:</h3>{TEMPLATEERROR}<table border=""0"" style=""border-style:none""><tr><td>Your name:*</td><td><input required style=""width:100%"" maxlength=""50"" type=""text"" value=""{AUTHOR}"" name=""author""/></td></tr><tr><td>Your email:</td><td><input style=""width:100%"" maxlength=""50"" type=""email"" value=""{EMAIL}"" name=""email""/></td></tr><tr><td>Your message:*</td><td><textarea required id=""{ID}"" name=""{ID}"" style=""width:100%"" cols=""40"" rows=""8"">{MESSAGE}</textarea></td></tr><tr><td> </td><td>{SMILEYS}</td></tr><tr><td>Are you human?</td><td>{CAPTCHA} <input style=""width:63px"" type=""text"" name=""captcha"" maxlength=""4"" size=""6"" /></td></tr><tr><td> </td><td>(*) " & l("mandatory") & "</td></tr><tr><td> </td><td><input type=""submit"" class=""art-button"" value=""Submit"" name=""post"" /> <input class=""art-button"" type=""reset"" value=""Reset"" name=""reset"" /></td></tr></table>"
 sTemplate="<blockquote>"&vbcrlf&"<div><b>{AUTHOR}</b> " & l("says") & " ({TIMESTAMP}):</div>" & vbcrlf &  "<div>{MESSAGE}</div>" & vbcrlf & "{TEMPLATEREPLY}{WARNINGAPPROVAL}" & vbcrlf & "</blockquote>"
 sTemplateReply="<div style=""margin:10px;padding:10px;background-color:#CDCDCD"">Reply from admin: {REPLY}</div>"
 sWarningApproval="<div style=""color:Green""><strong>Thank you for posting! Your entry needs to be approved by the webmaster.</strong></div>"
@@ -89,8 +89,8 @@ else
 save=false
 exit function
 end if
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 set rs = db.GetDynamicRS
 if isLeeg(iId) then
 rs.Open "select * from tblGuestBook where 1=2"

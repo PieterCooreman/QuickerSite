@@ -58,12 +58,14 @@
             Dim thumbNailImg As System.Drawing.Image
             Dim newWidth As Integer
             Dim newHeight As Integer
-            Dim maxSize As Integer
+            Dim maxSize As Double
             If IsNumeric(Request.QueryString("maxSize")) And Request.QueryString("maxSize") <> "" Then
                 maxSize = Request.QueryString("maxSize")
             Else
                 maxSize = 0
             End If	
+			
+			if maxSize>2560 then maxSize=2560
 			
             'calculate new widht/height, if any  
            
@@ -164,9 +166,7 @@
 
     Sub createOutput(ByRef ImageObj As System.Drawing.Image,isPNG as Boolean)
         
-        On Error Resume Next
-		
-		
+        On Error Resume Next		
 		
 		Dim specialEffect as String = HttpUtility.UrlDecode(Request.QueryString("SE"))
 		
@@ -178,8 +178,7 @@
 			case "3"
 				PixelLoopConvert (ImageObj)
 			
-		end select
-		
+		end select	
 		
 		
 		if isPNG then
@@ -187,12 +186,14 @@
 		else
 			ImageObj.Save(Response.OutputStream, ImageFormat.Jpeg)
 		end if
+		
         On Error GoTo 0
         
     End Sub
     
     Private Function CropImage(ByVal OriginalImage As Bitmap, ByVal TopLeft As Point, ByVal BottomRight As Point) As Bitmap
-        Dim btmCropped As New Bitmap((BottomRight.Y - TopLeft.Y), (BottomRight.X - TopLeft.X))
+        
+		Dim btmCropped As New Bitmap((BottomRight.Y - TopLeft.Y), (BottomRight.X - TopLeft.X))
         Dim grpOriginal As Graphics = Graphics.FromImage(btmCropped)
   
         grpOriginal.DrawImage(OriginalImage, New Rectangle(0, 0, btmCropped.Width, btmCropped.Height), _
@@ -200,6 +201,7 @@
         grpOriginal.Dispose()
   
         Return btmCropped
+		
     End Function
 
 
@@ -277,7 +279,8 @@
     End Function
 	
 	Public Function PureBW(ByVal image As System.Drawing.Bitmap, Optional ByVal Mode As BWMode = BWMode.By_Lightness, Optional ByVal tolerance As Single = 0) As System.Drawing.Bitmap
-        Dim x As Integer
+       
+	   Dim x As Integer
         Dim y As Integer
         If tolerance > 1 Or tolerance < -1 Then
             Throw New ArgumentOutOfRangeException
@@ -301,7 +304,9 @@
                 End If
             Next
         Next
+		
         Return image
+		
     End Function
 	
     Enum BWMode

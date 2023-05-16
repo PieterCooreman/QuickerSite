@@ -105,8 +105,7 @@ else
 save=false
 exit function
 end if
-set db=nothing
-set db=new cls_database
+
 dim rs
 set rs = db.GetDynamicRS
 if isLeeg(iId) then

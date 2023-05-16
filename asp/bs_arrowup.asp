@@ -27,6 +27,9 @@ end if
 			No arrow<br />
 			<input  type="radio" <%if isLeeg(customer.sArrowUP) then response.write " checked=""checked"" "%> value="" name="sArrowUP" />
 		</div>
+		<br><br><br>
+		
+		<div class="cleared"></div>
 		
 		<%
 		dim fso

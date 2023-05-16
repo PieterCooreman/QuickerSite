@@ -34,8 +34,8 @@ sInstallPath=Request.QueryString ("sInstallPath")
 if not isLeeg(sInstallPath) then
 installTemplate sInstallPath
 Response.Redirect ("bs_templatelist.asp?fbMessage=fb_templateadded")
-end if%><a name="ts"></a><form name="selecttemplate" action="bs_templatelist.asp#ts" method="post"><input type="hidden" name="postback" value="<%=true%>" /><table align="center"><tr><td align="center"><select name="look" onchange="javascript:selecttemplate.submit();"><option value="">Browse our templates by category...</option><%=templateCatList(Request.Form ("look"))%></select></td></tr><%if Request.Form ("look")<>"" then%><tr><td><%=showTemplateBox(Request.Form ("look"))%></td></tr><%end if%></table></form><%end if
-if not isLeeg(sAffArtisteer) then%><p align="center"><%=sAffArtisteer%></p><%end if 
+end if%><a name="ts"></a><form name="selecttemplate" action="bs_templatelist.asp#ts" method="post"><input type="hidden" name="postback" value="<%=true%>" /><table align="center"><tr><td align="center"><select name="look" onchange="javascript:selecttemplate.submit();"><option value="">Browse our templates by category...</option><%=templateCatList(Request.Form ("look"))%></select></td></tr><%if Request.Form ("look")<>"" then%><tr><td><%=showTemplateBox(Request.Form ("look"))%></td></tr><%end if%></table></form><%
+end if
 set zipper=nothing
 function templateCatList(selected)
 dim fso,folder,f

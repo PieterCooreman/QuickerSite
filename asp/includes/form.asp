@@ -137,8 +137,8 @@ save=false
 exit function
 end if
 end if
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 dim rs
 set rs = db.GetDynamicRS
 if isLeeg(iId) then
@@ -622,49 +622,118 @@ if not isLeeg(cFields(fFieldKey).sPlaceHolder) then
 cFields(fFieldKey).sPlaceHolder=treatConstants(cFields(fFieldKey).sPlaceHolder,true)
 end if
 select case cFields(fFieldKey).sType
+
 case sb_ff_text, sb_ff_url, sb_ff_email
-build=build&"<input "
-if not isLeeg(cFields(fFieldKey).sPlaceHolder) then
-	build=build&" placeholder=""" & sanitize(cFields(fFieldKey).sPlaceHolder) & """ "
-end if
-build=build& " type='text' size='"& cFields(fFieldKey).iSize &"' maxlength='"& cFields(fFieldKey).iMaxLength &"' name=" & """" & encrypt(fFieldKey) & """" &" value=" & """" & quotRep(defaultValue) & """" & " />"
-resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+	
+	build=build&"<input "
+	
+	if cFields(fFieldKey).bMandatory then
+		build=build & " required "
+	end if
+	
+	if not isLeeg(cFields(fFieldKey).sPlaceHolder) then
+		build=build&" placeholder=""" & sanitize(cFields(fFieldKey).sPlaceHolder) & """ "
+	end if
+	
+	build=build& " type='"
+	
+	select case cFields(fFieldKey).sType
+	
+		case sb_ff_text
+			build=build & "text"
+		
+		case sb_ff_email
+			build=build & "email"
+		
+		case sb_ff_url
+			build=build & "url"
+		
+	end select
+	
+	build=build& "' "	
+	build=build& " size='"& cFields(fFieldKey).iSize &"' maxlength='"& cFields(fFieldKey).iMaxLength &"' name=" & """" & encrypt(fFieldKey) & """" &" value=" & """" & quotRep(defaultValue) & """" & " />"
+	resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+
 case sb_ff_textarea,sb_ff_richtext
 
-build=build& "<textarea "
-if not isLeeg(cFields(fFieldKey).sPlaceHolder) then
-	build=build&" placeholder=""" & sanitize(cFields(fFieldKey).sPlaceHolder) & """ "
-end if
+	build=build& "<textarea "
 
-'show maximum-left box
-if convertGetal(cFields(fFieldKey).iMaxLength)<>0 then
-build=build&" onKeyDown=""javascript:textCounter(this.form." & encrypt(fFieldKey) & ",'" & encrypt(fFieldKey) & "remLen',"&cFields(fFieldKey).iMaxLength&");"" onKeyUp=""javascript:textCounter(this.form." & encrypt(fFieldKey) & ",'" & encrypt(fFieldKey) & "remLen',"&cFields(fFieldKey).iMaxLength&");"" cols='"& cFields(fFieldKey).iCols &"' rows='"& cFields(fFieldKey).iRows &"' name='" & encrypt(fFieldKey) &"'>" & quotRep(defaultValue) &"</textarea>"
-build=build&"<br /><span id='" & encrypt(fFieldKey) & "remLen'>" & cFields(fFieldKey).iMaxLength & "</span>&nbsp;" & l("charactersleft") 
-else
-build=build&" cols='"& cFields(fFieldKey).iCols &"' rows='"& cFields(fFieldKey).iRows &"' name='" & encrypt(fFieldKey) &"'>" & quotRep(defaultValue) &"</textarea>"
-end if
-resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+	if cFields(fFieldKey).bMandatory then
+		build=build & " required "
+	end if
+	
+	if not isLeeg(cFields(fFieldKey).sPlaceHolder) then
+		build=build&" placeholder=""" & sanitize(cFields(fFieldKey).sPlaceHolder) & """ "
+	end if
+
+	'show maximum-left box
+	if convertGetal(cFields(fFieldKey).iMaxLength)<>0 then
+		build=build&" onKeyDown=""javascript:textCounter(this.form." & encrypt(fFieldKey) & ",'" & encrypt(fFieldKey) & "remLen',"&cFields(fFieldKey).iMaxLength&");"" onKeyUp=""javascript:textCounter(this.form." & encrypt(fFieldKey) & ",'" & encrypt(fFieldKey) & "remLen',"&cFields(fFieldKey).iMaxLength&");"" cols='"& cFields(fFieldKey).iCols &"' rows='"& cFields(fFieldKey).iRows &"' name='" & encrypt(fFieldKey) &"'>" & quotRep(defaultValue) &"</textarea>"
+		build=build&"<br /><span id='" & encrypt(fFieldKey) & "remLen'>" & cFields(fFieldKey).iMaxLength & "</span>&nbsp;" & l("charactersleft") 
+	else
+		build=build&" cols='"& cFields(fFieldKey).iCols &"' rows='"& cFields(fFieldKey).iRows &"' name='" & encrypt(fFieldKey) &"'>" & quotRep(defaultValue) &"</textarea>"
+	end if
+	
+	resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+
 case sb_ff_checkbox
-build=build&"<input type='checkbox' name="& """" & encrypt(fFieldKey) &""""&" value='checked' "& defaultValue &" />"
-resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".checked=false;"
+
+	build=build&"<input "
+	
+	if cFields(fFieldKey).bMandatory then
+		build=build & " required "
+	end if	
+	
+	build=build & " type='checkbox' name="& """" & encrypt(fFieldKey) &""""&" value='checked' "& defaultValue &" />"
+	resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".checked=false;"
+
 case sb_ff_select
-build=build&"<select name="& """" & encrypt(fFieldKey) &"""" &">"& cFields(fFieldKey).showSelected(defaultValue) &"</select>"
-resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".selectedIndex=0;"
+
+	build=build&"<select "
+	
+	if cFields(fFieldKey).bMandatory then
+		build=build & " required "
+	end if
+	
+	
+	build=build& " name="& """" & encrypt(fFieldKey) &"""" &">"& cFields(fFieldKey).showSelected(defaultValue) &"</select>"
+	resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".selectedIndex=0;"
+
 case sb_ff_radio
-if convertBool(cFields(fFieldKey).bAllowMS) then
-build=build& cFields(fFieldKey).showSelectedRadioCB(defaultValue)
-else
-build=build& cFields(fFieldKey).showSelectedRadio(defaultValue)
-end if
+
+	if convertBool(cFields(fFieldKey).bAllowMS) then
+		build=build& cFields(fFieldKey).showSelectedRadioCB(defaultValue)
+	else
+		build=build& cFields(fFieldKey).showSelectedRadio(defaultValue)
+	end if
+	
 case sb_ff_date
-build=build&"<input type=""text"" id=""" & encrypt(fFieldKey) & """ name=""" & encrypt(fFieldKey) & """ value=""" & defaultValue & """ />"& JQDatePicker(encrypt(fFieldKey))
-resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+
+	build=build&"<input "
+	
+	if cFields(fFieldKey).bMandatory then
+		build=build & " required "
+	end if
+	
+	build=build&" type=""text"" id=""" & encrypt(fFieldKey) & """ name=""" & encrypt(fFieldKey) & """ value=""" & defaultValue & """ />"& JQDatePicker(encrypt(fFieldKey))
+	resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+
 case sb_ff_file,sb_ff_image
-build=build&"<input type='file' name=" & """" & encrypt(fFieldKey) & """" &" />"
-if not isLeeg(cFields(fFieldKey).sAllowedExtensions) then
-build=build & "<br /><span style=""font-size:0.8em"">" & l("allowedfiletypes") & ": " & cFields(fFieldKey).sAllowedExtensions & "</span>"
-end if
-resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+
+	build=build&"<input "
+	
+	if cFields(fFieldKey).bMandatory then
+		build=build & " required "
+	end if
+	
+	build=build&" type='file' name=" & """" & encrypt(fFieldKey) & """" &" />"
+	
+	if not isLeeg(cFields(fFieldKey).sAllowedExtensions) then
+		build=build & "<br /><span style=""font-size:0.8em"">" & l("allowedfiletypes") & ": " & cFields(fFieldKey).sAllowedExtensions & "</span>"
+	end if
+	
+	resetJS=resetJS&"document.quickerform." & encrypt(fFieldKey) & ".value='';"
+	
 end select
 build=build & "</div>"
 end if
@@ -682,7 +751,7 @@ else
 build=build & "QS_fieldlabel"
 end if
 build=build & "'>"& l("captcha") &":*</div>"
-build=build & "<div class='QS_fieldvalue'><img src='" & C_DIRECTORY_QUICKERSITE & "/asp/includes/captcha.asp' style='vertical-align: middle;margin:0px;border-style:none' alt='This is a CAPTCHA Image' />&nbsp;<input value="""& sanitize(upload.form("captcha")) &""" type='text' size='5' style='width:63px' maxlength='4' name='captcha' /></div>"
+build=build & "<div class='QS_fieldvalue'><img src='" & C_DIRECTORY_QUICKERSITE & "/asp/includes/captcha.asp' style='vertical-align: middle;margin:0px;border-style:none' alt='This is a CAPTCHA Image' />&nbsp;<input value="""& sanitize(upload.form("captcha")) &""" type='text' size='5' style='width:63px' maxlength='4' name='captcha' required /></div>"
 build=build & "</div>"
 end if
 build=build & "<div class='QS_fieldline'>"

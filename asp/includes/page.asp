@@ -450,8 +450,8 @@ sExternalURL=replace(sExternalURL,"http://","",1,-1,1)
 sExternalURL=replace(sExternalURL,"https://","",1,-1,1)
 sExternalURL=replace(sExternalURL,"ftp://","",1,-1,1)
 sExternalURL=replace(sExternalURL,"mailto:","",1,-1,1)
-set db=nothing
-set db=new cls_database
+'set db=nothing
+'set db=new cls_database
 dim rs
 set rs = db.GetDynamicRS
 if isLeeg(iId) then

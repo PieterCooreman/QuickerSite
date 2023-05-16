@@ -93,7 +93,7 @@ dim rs
 set rs=db.execute(sql)
 dim page,pCounter
 pCounter=1
-while not rs.eof and pCounter<100
+while not rs.eof and pCounter<250
 set page=new cls_page
 page.pick(rs(0))
 results.Add page.iId, page
@@ -129,7 +129,7 @@ end if
 set rs=db.execute(sql)
 dim post, encPI
 pCounter=0
-while not rs.eof and pCounter<100
+while not rs.eof and pCounter<250
 set page=new cls_page
 set post=new cls_post
 post.pick(rs(0))
@@ -156,7 +156,7 @@ Public function allPages
 dim sql
 sql="select "
 if not showAll then
-sql=sql& " top 100 "
+sql=sql& " top 250 "
 end if
 sql=sql&" tblPage.iId,tblPage.sTitle,tblCustomer.sName,tblPage.createdTS, tblPage.updatedTS, tblCustomer.sUrl, tblPage.iVisitors, tblCustomer.dResetStats from tblPage inner join tblCustomer on tblCustomer.iID=tblPage.iCustomerID where tblPage.bOnline="&getSQLBoolean(true)&" order by tblPage.updatedTS desc"
 dim rs

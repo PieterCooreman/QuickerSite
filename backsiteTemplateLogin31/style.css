@@ -1,5 +1,5 @@
 /* begin Page */
-/* Created by Artisteer v3.1.0.46558 */
+/* Created by Artisteer v3.1.0.48375 */
 
 #art-main, table
 {
@@ -65,29 +65,29 @@ ul.art-vmenu a
 .art-postcontent a
 {
    text-decoration: none;
-   color: #92C83E;
+   color: #A30A0D;
 }
 
 .art-postcontent a:link
 {
    text-decoration: none;
-   color: #92C83E;
+   color: #A30A0D;
 }
 
 .art-postcontent a:visited, .art-postcontent a.visited
 {
-   color: #4A4C43;
+   color: #A30A0D;
 }
 
 .art-postcontent  a:hover, .art-postcontent a.hover
 {
    text-decoration: underline;
-   color: #CCCCCC;
+   color: #DD0E12;
 }
 
 .art-postcontent h1
 {
-   color: #92C83E;
+   color: #55525B;
    margin: 12px 0;
 }
 
@@ -98,7 +98,7 @@ ul.art-vmenu a
 
 .art-postcontent h2
 {
-   color: #6C902E;
+   color: #736F7B;
    margin: 13px 0;
    font-size: 18px;
 }
@@ -116,7 +116,7 @@ ul.art-vmenu a
 
 .art-postcontent h3
 {
-   color: #88B43A;
+   color: #DD0E12;
    margin: 16px 0;
    font-size: 18px;
 }
@@ -134,7 +134,7 @@ ul.art-vmenu a
 
 .art-postcontent h4
 {
-   color: #111707;
+   color: #686A68;
    margin: 18px 0;
    font-size: 15px;
 }
@@ -152,7 +152,7 @@ ul.art-vmenu a
 
 .art-postcontent h5
 {
-   color: #111707;
+   color: #686A68;
    margin: 20px 0;
    font-size: 13px;
 }
@@ -170,7 +170,7 @@ ul.art-vmenu a
 
 .art-postcontent h6
 {
-   color: #1B240C;
+   color: #909290;
    margin: 25px 0;
    font-size: 12px;
 }
@@ -218,8 +218,8 @@ body
    padding: 0;
    margin:0;
    min-width: 600px;
-   color: #6E7163;
-   background-color: #CCCCCC;
+   color: #3D3E3D;
+   background-color: #9B9D9B;
 }
 
 .cleared
@@ -249,10 +249,12 @@ form
 
 table.position
 {
-   position: relative;
+  /*
+  position: relative;
    width: 100%;
-   table-layout: fixed;
-}
+	table-layout: fixed;
+*/
+   }
 
 /* Start Box */
 .art-box, .art-box-body {
@@ -364,7 +366,7 @@ div.art-header
    z-index: -5;
    width:600px;
    height: 100px;
-   margin-top: 50px;
+   margin-top: 15px;
    margin-bottom: 0;
 }
 .art-header-position
@@ -422,12 +424,12 @@ div.art-header
 div.art-headerobject
 {
    display: block;
-   left: 4%;
-   margin-left: -3px;
+   left: 3%;
+   margin-left: -52px;
    position: absolute;
-   top: 10px;
-   width: 81px;
-   height: 81px;
+   top: 0;
+   width: 160px;
+   height: 100px;
    background-image: url('images/header-object.png');
 }
 /* end HeaderObject */
@@ -437,49 +439,49 @@ div.art-logo
 {
    display: block;
    position: absolute;
-   top: 16px;
-   left: 66%;
-   margin-left: -262px;
+   top: 22px;
+   left: 20%;
+   margin-left: -34px;
 }
 
 .art-logo-name
 {
    display: block;
    text-align: left;
-   font-size: 33px;
+   font-size: 24px;
    padding: 0;
    margin: 0;
-   color: #92C83E !important;
+   color: #DDDCE0 !important;
 }
 .art-logo-name a, 
 .art-logo-name a:link, 
 .art-logo-name a:visited, 
 .art-logo-name a:hover
 {
-   font-size: 33px;
+   font-size: 24px;
    padding: 0;
    margin: 0;
-   color: #92C83E !important;
+   color: #DDDCE0 !important;
 }
 
 .art-logo-text
 {
    display: block;
    text-align: left;
-   font-size: 18px;
+   font-size: 13px;
    padding: 0;
    margin: 0;
-   color: #F2F2F2 !important;
+   color: #C9C7CC !important;
 }
 .art-logo-text a,
 .art-logo-text a:link,
 .art-logo-text a:visited,
 .art-logo-text a:hover
 {
-   font-size: 18px;
+   font-size: 13px;
    padding: 0;
    margin: 0;
-   color: #F2F2F2 !important;
+   color: #C9C7CC !important;
 }
 
 #headline, #slogan 
@@ -494,7 +496,7 @@ div.art-logo
 .art-sheet
 {
    max-width:600px;
-   margin-top: 20px;
+   margin-top: 10px;
    margin-bottom: 0;
    cursor:auto;
    width: 600px;
@@ -624,7 +626,7 @@ div.art-block img
 {
    min-height: 37px;
    line-height:37px;
-   color: #4A4C43;
+   color: #000000;
    font-size: 13px;
    margin:0;
    padding: 0 11px 0 29px;
@@ -636,7 +638,7 @@ div.art-block img
 .art-blockheader .t a:visited, 
 .art-blockheader .t a:hover
 {
-   color: #4A4C43;
+   color: #000000;
    font-size: 13px;
 }
 
@@ -650,7 +652,7 @@ div.art-block img
 .art-blockcontent-body 
 {
    padding:3px;
-   color: #282A24;
+   color: #121212;
    font-family: Arial, Helvetica, Sans-Serif;
    font-size: 12px;
 }
@@ -661,7 +663,7 @@ div.art-block img
 .art-blockcontent-body a:visited,
 .art-blockcontent-body a:hover
 {
-   color: #282A24;
+   color: #121212;
    font-family: Arial, Helvetica, Sans-Serif;
    font-size: 12px;
 }
@@ -673,26 +675,26 @@ div.art-block img
 
 .art-blockcontent-body a, .art-blockcontent-body a:link
 {
-   color: #273411;
+   color: #C90D10;
    text-decoration: underline;
 }
 
 .art-blockcontent-body a:visited, .art-blockcontent-body a.visited
 {
-   color: #344516;
+   color: #6A6C6A;
    text-decoration: underline;
 }
 
 .art-blockcontent-body a:hover, .art-blockcontent-body a.hover
 {
-   color: #0C1005;
+   color: #C90D10;
    text-decoration: none;
 }
 
 .art-blockcontent-body ul li
 {
    line-height: 125%;
-   color: #111707;
+   color: #5B5D5B;
    padding: 0 0 0 10px;
    background-image: url('images/blockcontentbullets.png');
    background-repeat: no-repeat;
@@ -717,7 +719,7 @@ span.art-button-wrapper>button.art-button
    vertical-align: middle;
    white-space: nowrap;
    text-align: center;
-   color: #FFFFFF !important;
+   color: #DBDADD !important;
    width: auto;
    outline: none;
    border: none;
@@ -775,13 +777,13 @@ div.art-block select
 
 span.art-button-wrapper.hover>.art-button, span.art-button-wrapper.hover>a.art-button:link
 {
-   color: #92C83E !important;
+   color: #000000 !important;
    text-decoration: none !important;
 }
 
 span.art-button-wrapper.active>.art-button, span.art-button-wrapper.active>a.art-button:link
 {
-   color: #92C83E !important;
+   color: #DBDADD !important;
 }
 
 span.art-button-wrapper>span.art-button-l, span.art-button-wrapper>span.art-button-r
@@ -854,10 +856,10 @@ a img
 
 .art-article img, img.art-article, .art-block img, .art-footer img
 {
-   border-color: #9BC64F;
+  /* border-color: #B4B6B4;
    border-style: solid;
    border-width: 0;
-   margin: 0 0 0 0;
+   margin: 0 0 0 0; */
 }
 
 .art-metadata-icons img
@@ -869,8 +871,9 @@ a img
 
 .art-article table, table.art-article
 {
-   border-collapse: collapse;
+   /*border-collapse: collapse;
    margin: 1px;
+   */
 }
 
 .art-post .art-content-layout-br
@@ -914,7 +917,7 @@ pre
 /* begin PostHeaderIcon */
 .art-postheader
 {
-   color: #33352F;
+   color: #3C3A40;
    margin: 3px 0;
    line-height: 1em;
    font-size: 18px;
@@ -934,18 +937,18 @@ pre
 {
    text-align: left;
    text-decoration: none;
-   color: #141512;
+   color: #EB0F13;
 }
 
 .art-postheader a:visited, .art-postheader a.visited
 {
-   color: #455C1E;
+   color: #626462;
 }
 
 .art-postheader a:hover,  .art-postheader a.hovered
 {
    text-decoration: underline;
-   color: #818F00;
+   color: #DD0E12;
 }
 
 /* end PostHeaderIcon */
@@ -960,7 +963,7 @@ pre
 .art-postcontent li
 {
    font-size: 12px;
-   color: #10100E;
+   color: #141315;
    margin: 0 0 2px;
    padding: 0 0 0 9px;
 }
@@ -999,7 +1002,7 @@ blockquote a:link, .art-postcontent blockquote a:link, .art-blockcontent blockqu
 blockquote a:visited, .art-postcontent blockquote a:visited, .art-blockcontent blockquote a:visited, .art-footer blockquote a:visited,
 blockquote a:hover, .art-postcontent blockquote a:hover, .art-blockcontent blockquote a:hover, .art-footer blockquote a:hover
 {
-   color: #070A03;
+   color: #0F0F0F;
    text-align: left;
 }
 
@@ -1015,10 +1018,10 @@ blockquote p,
 
 blockquote
 {
-   border: solid 1px #9BC64F;
+   border: solid 1px #B4B6B4;
    margin: 10px;
    padding: 6px;
-   background-color: #B3D47A;
+   background-color: #D8D9D8;
    margin-left: 50px;
    padding-left: 39px;
    background-image: url('images/postquote.png');
@@ -1044,14 +1047,14 @@ blockquote
 {
    position:relative;
    padding: 5px;
-   color: #C7C9C1;
+   color: #9D9F9D;
    letter-spacing: 1px;
 }
 
 .art-footer-body ul li
 {
    font-size: 12px;
-   color: #BEDA8D;
+   color: #EDEDED;
 }
 
 .art-footer-body:before
@@ -1125,7 +1128,7 @@ blockquote
 .art-footer-body th,
 .art-footer-body caption
 {
-   color: #C7C9C1;
+   color: #9D9F9D;
    letter-spacing: 1px;
 }
 
@@ -1140,18 +1143,18 @@ blockquote
 .art-footer-body a,
 .art-footer-body a:link
 {
-   color: #FFFFFF;
+   color: #F67476;
    text-decoration: underline;
 }
 
 .art-footer-body a:visited
 {
-   color: #A8AB9F;
+   color: #B4B6B4;
 }
 
 .art-footer-body a:hover
 {
-   color: #92C83E;
+   color: #F99FA1;
    text-decoration: none;
 }
 
@@ -1176,7 +1179,7 @@ div.art-footer img
    font-style: normal;
    font-weight: normal;
    text-decoration: underline;
-   color: #3C3E37;
+   color: #413F46;
 }
 
 .art-page-footer
@@ -1186,7 +1189,7 @@ div.art-footer img
    padding: 1em;
    text-align: center;
    text-decoration: none;
-   color: #597626;
+   color: #323432;
 }
 /* end PageFooter */
 
