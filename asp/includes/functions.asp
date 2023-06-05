@@ -1,5 +1,37 @@
 <%
 
+function filterImages(v)
+
+	while instr(v,"data:image/png;base64,")<>0
+
+		dim startPos : startPos=instr(v,"data:image/png;base64,")		
+		
+		dim endPos : endPos=instr(startPos+1,v,"""")
+		startPos=startPos+22	
+		
+		dim binText : binText=mid(v,startPos,endPos-startPos)
+		
+		dim oXML : Set oXML = CreateObject("Msxml2.DOMDocument")
+		dim oNode : Set oNode = oXML.CreateElement("base64")
+		oNode.dataType = "bin.base64"
+		oNode.text = binText
+
+		dim BinaryStream : Set BinaryStream = CreateObject("ADODB.Stream")
+		BinaryStream.Type = 1 'adTypeBinary
+		BinaryStream.Open
+		BinaryStream.Write oNode.nodeTypedValue
+			
+		dim filename : filename=GeneratePassWord & GeneratePassWord
+		BinaryStream.SaveToFile server.mappath(C_VIRT_DIR & Application("QS_CMS_userfiles")) & "\" & filename & ".png"
+
+		v=replace(v,"data:image/png;base64," & binText,C_VIRT_DIR & Application("QS_CMS_userfiles") & filename & ".png",1,-1,1)			
+	
+	wend
+	
+	filterImages=v
+
+end function 
+
 function removeCRB(value)
 
 	'remove Code Render Blocks
@@ -167,12 +199,12 @@ dim arrLt(26)
 arrLt(0)="\"
 arrLt(1)="'"
 arrLt(2)="''"
-arrLt(3)="§"
+arrLt(3)="Â§"
 arrLt(4)="`"
 arrLt(5)=":"
 arrLt(6)=";"
 arrLt(7)=","
-arrLt(8)="¤"
+arrLt(8)="Â¤"
 arrLt(9)="("
 arrLt(10)=")"
 arrLt(11)="="
@@ -292,7 +324,7 @@ Function RemoveHTML( strText )
     
     convertTo_iso_8859_1(strResult) 
    
-    strResult=Replace(strResult, "&euro;", "€",1,-1,1)
+    strResult=Replace(strResult, "&euro;", "â‚¬",1,-1,1)
     strResult=Replace(strResult, "<o:p>", "",1,-1,1)
     strResult=Replace(strResult, "</o:p>", "",1,-1,1)       
     strResult=replace(strResult, vbcrlf," ",1,-1,1)  
@@ -377,7 +409,7 @@ dim TAGLIST
     
     convertTo_iso_8859_1(strResult) 
    
-    strResult=Replace(strResult, "&euro;", "€",1,-1,1)
+    strResult=Replace(strResult, "&euro;", "â‚¬",1,-1,1)
     strResult=Replace(strResult, "<o:p>", "",1,-1,1)
     strResult=Replace(strResult, "</o:p>", "",1,-1,1)       
     strResult=replace(strResult, vbcrlf," ",1,-1,1)  
@@ -587,6 +619,7 @@ end function
 dim INNOVALOADED
 INNOVALOADED=false
 function dumpFCKInstance(sValue,sToolbar,sFieldName)
+sValue=filterImages(sValue)
 dumpFCKInstance=""
 if isLeeg(sValue) then sValue=""
 select case QS_EDITOR
@@ -1201,7 +1234,7 @@ function isValidFolderName(elementName)
  isValidFolderName=true
 Dim invalcount, invalidList,i
     invalcount = 0 
-    invalidList = ",<.>?;:'@#~]}[{=+)(*&^%$£!`¬| -_" 
+    invalidList = ",<.>?;:'@#~]}[{=+)(*&^%$Â£!`Â¬| -_" 
  
     ' check for " which can't be inside the string 
  
