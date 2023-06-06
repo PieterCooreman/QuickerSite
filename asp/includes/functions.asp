@@ -619,7 +619,7 @@ end function
 dim INNOVALOADED
 INNOVALOADED=false
 function dumpFCKInstance(sValue,sToolbar,sFieldName)
-sValue=filterImages(sValue)
+'sValue=filterImages(sValue)
 dumpFCKInstance=""
 if isLeeg(sValue) then sValue=""
 select case QS_EDITOR
