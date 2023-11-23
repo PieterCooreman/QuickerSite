@@ -837,7 +837,7 @@ if not isLeeg(sValue) then
 dim sql, rs, postObj, maxresults
 maxresults=0
 sql="select iId, iPostID from tblPost "
-sql=sql & "where iThemeID=" & iId & " and (sBody like '%" & left(cleanup(sValue),100) & "%' or sSubject like '%" & left(cleanup(sValue),100) & "%') "
+sql=sql & "where iThemeID=" & iId & " and (sBody like '%" & cleanup(left(sValue,100)) & "%' or sSubject like '%" & cleanup(left(sValue,100)) & "%') "
 if iType=QS_theme_ts and convertGetal(iContactID)<>convertGetal(logon.contact.iId) then
 sql=sql&" and iContactID="& logon.contact.iId
 end if
