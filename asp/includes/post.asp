@@ -379,6 +379,7 @@ buildPost=buildPost&"><a name="& """" & "apost" & encrypt(iId) & """" & "></a>"
 buildPost=buildPost&"<div class='QS_theme_subject'>"
 dim showCompactMode
 showCompactMode=themeObj.bCompactList and not showReplies and not printReplies
+if not isLeeg(iId) then showCompactMode=false
 'tonen of niet?
 if showCompactMode then
 buildPost=buildPost&"<a href='#' "
