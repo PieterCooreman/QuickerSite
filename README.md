@@ -6,5 +6,5 @@ QuickerSite is an all-in-one CMS (Content Management System) built in ASP/VBScri
 
 ## Installation
 Install this application in the root of an IIS website and make sure IUSR has full permissions to the entire folder.
-Make sure "default.asp" is the default document. 
+Make sure "default.asp" is the default document. The default installation uses an Access database and therefore 32bits-support needs to be enabled for your IIS application pool.
 When browsing to your site the first time, you will be prompted for a password. By default this is "admin". You have to change it to something else. 
