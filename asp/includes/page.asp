@@ -345,7 +345,7 @@ if not bMenuGroup and not bContainerPage and isLeeg(sApplication) and isLeeg(iCa
 check=false
 message.AddError("err_mandatory")
 end if
-if bHomepage and isLeeg(sApplication)  and isLeeg(iCatalogId) and isLeeg(iFormID) and isLeeg(iFeedId) and isLeeg(iThemeID) then
+if bHomepage and isLeeg(sApplication)  and isLeeg(iCatalogId) and isLeeg(iFormID) and isLeeg(iFeedId) and isLeeg(iThemeID) and isLeeg(sOrderBY) then
 message.AddError("err_mandatory")
 check=false
 end if
