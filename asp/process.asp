@@ -75,7 +75,7 @@ case "showpopup"
 dim showPopup
 set showPopup=new cls_popup
 response.clear
-response.write "<html><title>"  & quotrep(treatconstants(showPopup.sName,true)) &  "</title><body style=""margin:0px 0px 0px 0px;padding:0px 0px 0px 0px"">" & treatconstants(showPopup.sValue,true) & "</body></html>"
+response.write "<!DOCTYPE html><html><head><meta charSet=""utf-8""/><title>"  & quotrep(treatconstants(showPopup.sName,true)) &  "</title></head><body style=""margin:0px 0px 0px 0px;padding:0px 0px 0px 0px"">" & treatconstants(showPopup.sValue,true) & "</body></html>"
 set showPopup=nothing
 response.flush
 CleanupASP()
