@@ -1435,7 +1435,7 @@ devVersion=lcase(Request.ServerVariables ("http_host"))="dev.quickersite.com"
 end function
 function wrapInHTML(body,subject)
 if instr(1,body,"<html>",vbTextCompare)=0 then
-wrapInHTML="<html>" & vbcrlf & "<head>" & vbcrlf & "<meta HTTP-EQUIV=""Content-Type"" content=""text/html; charset=" & QS_CHARSET & """>" & vbcrlf & "<title>"& subject &"</title>" & vbcrlf & "</head>" & vbcrlf & "<body "
+wrapInHTML="<!DOCTYPE html><html>" & vbcrlf & "<head>" & vbcrlf & "<meta HTTP-EQUIV=""Content-Type"" content=""text/html; charset=" & QS_CHARSET & """>" & vbcrlf & "<title>"& subject &"</title>" & vbcrlf & "</head>" & vbcrlf & "<body "
 if not isLeeg(sOWBodyBGColor) then
 wrapInHTML=wrapInHTML & " style=""background-color:" & sOWBodyBGColor & """ bgColor=""" & sOWBodyBGColor & """ "
 end if
