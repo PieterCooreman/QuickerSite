@@ -43,7 +43,7 @@ function artHeaderPart
 'copy/paste the header from your template here
 'DO NOT INCLUDE <html>,<head> or <body>-tags.
 %>
-
+<style>input {transition: 0.3s;}</style>
     <link rel="stylesheet" href="<%=C_DIRECTORY_QUICKERSITE%>/backsiteTemplate31/style.css" type="text/css" media="screen" />
     <!--[if IE 6]><link rel="stylesheet" href="<%=C_DIRECTORY_QUICKERSITE%>/backsiteTemplate31/style.ie6.css" type="text/css" media="screen" /><![endif]-->
     <!--[if IE 7]><link rel="stylesheet" href="<%=C_DIRECTORY_QUICKERSITE%>/backsiteTemplate31/style.ie7.css" type="text/css" media="screen" /><![endif]-->
@@ -227,7 +227,7 @@ end function
 
 function artHeaderPartLOGIN
 %>
-    
+    <style>input {transition: 0.3s;}</style>
      <link rel="stylesheet" href="<%=C_DIRECTORY_QUICKERSITE%>/backsiteTemplateLOGIN31/style.css" type="text/css" media="screen" />
     <!--[if IE 6]><link rel="stylesheet" href="<%=C_DIRECTORY_QUICKERSITE%>/backsiteTemplateLOGIN31/style.ie6.css" type="text/css" media="screen" /><![endif]-->
     <!--[if IE 7]><link rel="stylesheet" href="<%=C_DIRECTORY_QUICKERSITE%>/backsiteTemplateLOGIN31/style.ie7.css" type="text/css" media="screen" /><![endif]-->
