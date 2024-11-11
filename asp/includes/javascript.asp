@@ -27,6 +27,7 @@ dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"" src=""https://aj
 dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"">if (typeof jQuery == 'undefined'){document.write(unescape(""%3Cscript src='" & C_DIRECTORY_QUICKERSITE & "/js/JQuery183.js' type='text/javascript'%3E%3C/script%3E""));}</script>"
 'JQUERY UI
 dumpJavaScript=dumpJavaScript&"<link media=""screen"" type=""text/css"" rel=""stylesheet"" href=""" & C_DIRECTORY_QUICKERSITE & "/js/JQueryUI.css"" />" & vbcrlf
+dumpJavaScript=dumpJavaScript&"<link media=""all"" type=""text/css"" rel=""stylesheet"" href=""" & C_DIRECTORY_QUICKERSITE & "/css/media.css"" />" & vbcrlf
 dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"" src=""" & C_DIRECTORY_QUICKERSITE & "/js/JQueryUI.js""></script>" & vbcrlf
 end if
 dumpJavaScript=dumpJavaScript&"<style type=""text/css"">" & vbcrlf
@@ -86,6 +87,7 @@ dumpJavaScript=dumpJavaScript & cPopup.dumpJS & vbcrlf
 dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"">" & vbcrlf
 dumpJavaScript=dumpJavaScript&"$(document).ready(function(){" & vbcrlf
 dumpJavaScript=dumpJavaScript&"$("".bPopupFullWidthNoReload"").colorbox({close: """ & quotrep(l("close")) & """, width:""90%"", height:""90%"", iframe:true}); " & vbcrlf
+dumpJavaScript=dumpJavaScript&"$("".bPopupFullWidthNoReloadNoOverlayClose"").colorbox({close: """ & quotrep(l("close")) & """, width:""90%"", height:""90%"", iframe:true, overlayClose: false}); " & vbcrlf
 dumpJavaScript=dumpJavaScript&"$("".bPopupFullWidthReload"").colorbox({close: """ & quotrep(l("close")) & """, width:""90%"", height:""90%"", iframe:true, onClosed:function(){location.reload(true);}}); " & vbcrlf
 dumpJavaScript=dumpJavaScript&"$("".QSPP"").colorbox({close: """ & quotrep(l("close")) & """, width:""750"", height:""600"", iframe:true}); " & vbcrlf
 dumpJavaScript=dumpJavaScript&"$("".QSPPR"").colorbox({close: """ & quotrep(l("close")) & """, width:""750"", height:""600"", iframe:true, onClosed:function(){location.reload(true);}}); " & vbcrlf

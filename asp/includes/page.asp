@@ -9,6 +9,9 @@ Public sCode, bOpenOnload, bIntranet, iCatalogId, iFormID, sFormAlign, bMenuGrou
 Public sDescription, iTemplateID, bPushRSS, iHitsRSS, sRSSLink, sUserFriendlyURL, sRedirectTo, iReload, iThemeID, sRel,sLPIC
 Public bLPExternalOINW, newRang, oldRang, sHeader, iLPOpenByDefault, overruleCID, bam,p_template, iPostID, forceArtisteerRoot, sPageTitle
 Public sProp01,sProp02,sProp03,sProp04,sProp05,sProp06,sProp07,sProp08,sClassname,sPageCache,bNocache,sUrlRRSImage,bAccordeon,bHideFromSearch,sItemPicture
+
+Public iPMlocation
+
 Private bLoadInCache
 Private Sub Class_Initialize
 on error resume next
@@ -47,6 +50,7 @@ bHideDate=false
 bCopy=false
 bAccordeon=false
 bHideFromSearch=false
+iPMlocation=0
 set p_template=nothing
 on error goto 0
 end sub
@@ -317,6 +321,7 @@ bAccordeon	= rs("bAccordeon")
 bHideFromSearch	= rs("bHideFromSearch")
 sItemPicture	= rs("sItemPicture")
 sLPIC=rs("sLPIC")
+iPMlocation=convertGetal(rs("iPMlocation"))
 'sUrlRRSImage	= rs("sUrlRRSImage")
 dumperror "Pick Page",err
 end if
@@ -556,6 +561,8 @@ rs("bAccordeon")	= convertBool(bAccordeon)
 rs("bHideFromSearch")	= convertBool(bHideFromSearch)
 rs("sItemPicture") = convertStr(sItemPicture)
 rs("sLPIC") = sLPIC
+rs("iPMlocation")=iPMlocation
+
 'rs("sUrlRRSImage")	= sUrlRRSImage
 rs.Update 
 iId = convertGetal(rs("iId"))
@@ -1200,6 +1207,101 @@ aantalDagen=customer.aantalDagen
 sPage=Replace(sPage, "[C_VIRT_DIR]", C_VIRT_DIR,1,-1,1)
 sPage=Replace(sPage, "[C_DIRECTORY_QUICKERSITE]", C_DIRECTORY_QUICKERSITE,1,-1,1)
 sPage=Replace(sPage, "[HEADER]", convertStr(customer.sTopheader),1,-1,1)
+
+if convertGetal(iPMlocation)<>0 then
+
+	dim cMediafiles : set cMediafiles=mediafiles
+	
+	if cMediafiles.count>0 then
+
+		dim medf,medfstr	
+		
+		dim padding, perc, tresh, imgSize : imgSize=600 : padding="" : countB=false
+
+		select case cMediafiles.count
+		
+			case 1 : perc="100" : tresh=1 : imgSize=1920 : padding="padding:0px 0px 0px 0px;"
+			case 2 : perc="50" 	: tresh=1 : imgSize=1920
+			case 3 : perc="33" 	: tresh=1 
+			case 4 : perc="50" 	: tresh=1 
+			case 5 : perc="33" 	: tresh=1
+			case 6 : perc="33" 	: tresh=2
+			case 7 : perc="50" 	: tresh=4
+			case 8 : perc="25" 	: tresh=2
+			case 9 : perc="33" 	: tresh=3
+			case 10 : perc="50" : tresh=5
+			case 11 : perc="33" : tresh=4
+			case 12 : perc="33" : tresh=4
+			case 13 : perc="50" : tresh=7
+			case 14 : perc="25" : tresh=5
+			case 15 : perc="33" : tresh=5
+			case 16 : perc="25" : tresh=4
+			case 17 : perc="33" : tresh=6
+			case 18 : perc="33" : tresh=6
+			case 19 : perc="25" : tresh=5
+			case 20 : perc="25" : tresh=5
+			case 21 : perc="33" : tresh=7
+			case 22 : perc="33" : tresh=8
+			case 23 : perc="25" : tresh=6
+			case 24 : perc="33" : tresh=8
+			case 25 : perc="20" : tresh=5
+			case 26 : perc="33" : tresh=9
+			case 27 : perc="33" : tresh=9
+			case else : perc="33" : tresh=round(cMediafiles.count/3,0)+1 : countB=true
+			
+		end select	
+		
+		dim margintop
+		select case iPMlocation
+			case 2,4 : margintop="5"
+			case else : margintop="20"
+		end select
+		
+		medfstr=vbcrlf & vbcrlf & vbcrlf & "<div class=""qspagemedia qsrow"" style=""margin-bottom:20px;margin-top:"&margintop&"px"">" & vbcrlf
+		medfstr=medfstr & "<div class=""qscolumn"" style="""&padding&"flex:" & perc & "%;max-width:" & perc & "%"">" & vbcrlf
+		
+		dim countB, countf, lightboxSAMPLE : lightboxSAMPLE=generatePassword : countf=0
+		
+		for each medf in cMediafiles	
+			
+			if countf=tresh then
+			
+				if countB then tresh=tresh-1 : countB=false
+				
+				countf=0
+				medfstr=medfstr & "</div>" & vbcrlf
+				medfstr=medfstr & "<div class=""qscolumn"" style="""&padding&"flex:" & perc & "%;max-width:" & perc & "%"">" & vbcrlf
+			end if
+			
+			countf=countf+1
+		
+			medfstr=medfstr & "<!--" & countf & "--><a rel=""" & lightboxSAMPLE & """ href=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize=1920&FSR=0&img="
+			medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """ class=""QSPPIMG"">"
+			medfstr=medfstr & "<img src=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize="&imgSize&"&FSR=0&img="
+			medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """></a>" & vbcrlf
+				
+		next
+		
+		set cMediafiles=nothing
+		
+		medfstr=medfstr & "</div></div>" & vbcrlf	
+		
+		select case iPMlocation		
+			
+			case 2 : pagebody="<div class=""qsrow"" style=""display:flex;flex-wrap:wrap;""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;"">" & pagebody & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:20px"">" & medfstr & "</div></div>"
+			
+			case 3 : pagebody=pagebody & medfstr
+			
+			case 4 : pagebody="<div class=""qsrow"" style=""display:flex;flex-wrap:wrap;""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;padding-right:20px"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & pagebody & "</div></div>"
+		
+			case else : pagebody=medfstr & pagebody		
+			
+		end select
+		
+	end if
+	
+end if
+
 sPage=Replace(sPage, "[PAGEBODY]", pageBody,1,-1,1)
 sPage=Replace(sPage, "[PAGEHEADER]", customer.sHeader & vbcrlf & sHeader,1,-1,1)
 sPage=Replace(sPage, "[PAGETITLE]", pageTitle,1,-1,1)
@@ -1787,6 +1889,34 @@ end function
 		
 	end property
 	
+	public function mediafiles
+	
+		set mediafiles=server.createobject("scripting.dictionary")		
+	
+		dim fso : set fso=server.createobject("scripting.filesystemobject")
+		
+		if fso.folderexists(server.MapPath (C_VIRT_DIR &  Application("QS_CMS_userfiles") & "pagemedia/" & iId)) then
+			
+			dim file,files : set files=fso.getfolder(server.MapPath (C_VIRT_DIR &  Application("QS_CMS_userfiles") & "pagemedia/" & iId)).files
+			
+			for each file in files
+				mediafiles.add file.name, file.name
+			next
+			
+			set files=nothing			
+			
+		end if
+	
+		set fso=nothing
+	
+	end function
+	
+	public sub removeallmedia
+	
+		dim fso : set fso=server.createobject("scripting.filesystemobject")	
+		fso.deletefolder(server.MapPath (C_VIRT_DIR &  Application("QS_CMS_userfiles") & "pagemedia/" & iId))
+	
+	end sub
 	
 
 end class%>
