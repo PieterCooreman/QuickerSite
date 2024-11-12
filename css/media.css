@@ -1,6 +1,5 @@
 .qsrow {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; 
 }
 
 /* Create four equal columns that sits next to each other */
