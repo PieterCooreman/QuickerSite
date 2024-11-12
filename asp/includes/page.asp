@@ -7,7 +7,7 @@ Public sValue, sValueTextOnly, iRang, bOnline, bDeleted, bContainerPage, bLosseP
 Public createdTS, sPw, dOnlineFrom, dOnlineUntill, sOrderBY, dPage, iHits, iVisitors, sApplication, sLPExternalURL,bHideDate
 Public sCode, bOpenOnload, bIntranet, iCatalogId, iFormID, sFormAlign, bMenuGroup, iFeedId, sKeywords, sSEOtitle, bCopy
 Public sDescription, iTemplateID, bPushRSS, iHitsRSS, sRSSLink, sUserFriendlyURL, sRedirectTo, iReload, iThemeID, sRel,sLPIC
-Public bLPExternalOINW, newRang, oldRang, sHeader, iLPOpenByDefault, overruleCID, bam,p_template, iPostID, forceArtisteerRoot, sPageTitle
+Public bLPExternalOINW, newRang, oldRang, sHeader, iLPOpenByDefault, overruleCID, bam,p_template, iPostID, forceArtisteerRoot, sPageTitle, b404, sUfl
 Public sProp01,sProp02,sProp03,sProp04,sProp05,sProp06,sProp07,sProp08,sClassname,sPageCache,bNocache,sUrlRRSImage,bAccordeon,bHideFromSearch,sItemPicture
 
 Public iPMlocation
@@ -51,6 +51,7 @@ bCopy=false
 bAccordeon=false
 bHideFromSearch=false
 iPMlocation=0
+b404=false
 set p_template=nothing
 on error goto 0
 end sub
@@ -219,9 +220,13 @@ else
 
 'custom error page?
 if convertBool(customer.bCustom404) then
-response.redirect (C_DIRECTORY_QUICKERSITE & "/default.asp?pageAction=404&404file=" & server.urlencode(s404ufl))
+
+	b404=true : sUfl=ufl
+
 else
-redirectToHP()
+
+	redirectToHP()
+
 end if
 
 
