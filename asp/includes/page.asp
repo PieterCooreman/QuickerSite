@@ -1293,11 +1293,11 @@ if convertGetal(iPMlocation)<>0 then
 		
 		select case iPMlocation		
 			
-			case 2 : pagebody="<div class=""qsrow"" style=""display:flex;flex-wrap:wrap;""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;"">" & pagebody & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:20px"">" & medfstr & "</div></div>"
+			case 2 : pagebody="<div class=""qsrow"" style=""display:flex""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;"">" & pagebody & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:20px"">" & medfstr & "</div></div>"
 			
 			case 3 : pagebody=pagebody & medfstr
 			
-			case 4 : pagebody="<div class=""qsrow"" style=""display:flex;flex-wrap:wrap;""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;padding-right:20px"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & pagebody & "</div></div>"
+			case 4 : pagebody="<div class=""qsrow"" style=""display:flex""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;padding-right:20px"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & pagebody & "</div></div>"
 		
 			case else : pagebody=medfstr & pagebody		
 			
