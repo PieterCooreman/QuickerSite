@@ -29,8 +29,7 @@ end if
 <input type="hidden" name="postback" value="1" />
 <table align="center" cellpadding="2">
 <tr><td class=QSlabel valign=top>Enable custom 404 page?</td><td><input name="bCustom404" type="checkbox" value="1" <%if convertBool(customer.bCustom404) then response.write "checked=""checked"""%> />
-<span style="float:right"><input type="submit" value="Save" class="art-button" />&nbsp;
-<a target="_blank" class="art-button" href="<%=C_DIRECTORY_QUICKERSITE & "/default.asp?pageAction=404&404file=FileName"%>">Preview</a></span></td>
+<span style="float:right"><input type="submit" value="Save" class="art-button" /></span></td>
 </tr>
 
 <tr><td class=QSlabel>[PAGETITLE]:</td><td><input type="text" name="sCustom404Title" size="70" maxlength="255" value="<%=sanitize(customer.sCustom404Title)%>" /></td></tr>
