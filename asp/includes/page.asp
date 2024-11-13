@@ -1047,6 +1047,7 @@ page.updatedTS=rs("updatedTS")
 page.sItemPicture=rs("sItemPicture")
 page.sUserfriendlyURL=rs("sUserfriendlyURL")
 page.sLPIC=rs("sLPIC")
+page.iPMlocation=rs("iPMlocation")
 'page.sUrlRRSImage=rs("sUrlRRSImage")
 fastlistitems.Add page.iId, page
 set page=nothing

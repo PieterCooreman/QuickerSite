@@ -1,12 +1,19 @@
 
 <%class cls_fastpage
-public iId,bHideDate,sLPExternalURL,sTitle,bLPExternalOINW,sValue,iFeedId,dPage,updatedTS,sUrlRRSImage,sItemPicture,sUserfriendlyUrl,sLPIC
+public iId,bHideDate,sLPExternalURL,sTitle,bLPExternalOINW,sValue,iFeedId,dPage,updatedTS,sUrlRRSImage,sItemPicture,sUserfriendlyUrl,sLPIC,iPMlocation
+
+sub class_initialize
+	iPMlocation=0
+end sub
 
 function page
-	set page=new cls_page
-	page.pick(iId)
-end function
 
+	set page=new cls_page
+	page.iId=iId
+	
+	if iPMlocation<>0 then page.pick(iId)
+	
+end function
 
 public function feed
 set feed=new cls_feed
