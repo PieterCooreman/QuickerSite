@@ -57,7 +57,7 @@ pageListPageItem=pageListPageItem&"<div class='QS_listitemvalue'>"
 
 	pageListPageItem=pageListPageItem & selectedListItem.listitemPicIMGTag
 
-	pageListPageItem=pageListPageItem& selectedListItem.sValue & "</div>"
+	pageListPageItem=pageListPageItem& selectedListItem.page.insertMedia(selectedListItem.sValue) & "</div>"
 end if
 if not isLeeg(selectedListItem.iFeedId) then pageListPageItem=pageListPageItem&"<div class='QS_listitemvalue'>"&selectedListItem.Feed.build()&"</div>"
 else
