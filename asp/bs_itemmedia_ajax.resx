@@ -78,13 +78,17 @@ if saveOK then
 	
 end if
 
-if files.count>0 then
+if files.count>0 then	
 	
 	dim preview1 : set preview1 = form.field("plain")
 	preview1.add "html","<a href=""default.asp?iId=" & encrypt(page.iId) & """ target=""_blank"" style=""margin-left:10px;margin-top:10px"" class=""btn btn-sm btn-success"">Preview</a>"
+		
+	if files.count>3 then
+		
+		dim deleteAll : set deleteAll = form.field("plain")
+		deleteAll.add "html","<a style=""margin-left:10px;margin-top:10px"" onclick=""if(confirm('Are you sure? This will delete ALL images!')){aspAjax('GET','bs_itemmedia_handler.asp?delAll=1&iId=" & encrypt(page.iId) & "','asplEvent=media',getAspForm);};return false;"" href=""#"" class=""btn btn-sm btn-danger"">Remove all " & files.count & " images</a>"
 	
-	dim deleteAll : set deleteAll = form.field("plain")
-	deleteAll.add "html","<a style=""margin-left:10px;margin-top:10px"" onclick=""if(confirm('Are you sure? This will delete ALL images!')){aspAjax('GET','bs_itemmedia_handler.asp?delAll=1&iId=" & encrypt(page.iId) & "','asplEvent=media',getAspForm);};return false;"" href=""#"" class=""btn btn-sm btn-danger"">Remove all images</a>"
+	end if
 
 end if
 
