@@ -27,9 +27,9 @@ dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"" src=""https://aj
 dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"">if (typeof jQuery == 'undefined'){document.write(unescape(""%3Cscript src='" & C_DIRECTORY_QUICKERSITE & "/js/JQuery183.js' type='text/javascript'%3E%3C/script%3E""));}</script>"
 'JQUERY UI
 dumpJavaScript=dumpJavaScript&"<link media=""screen"" type=""text/css"" rel=""stylesheet"" href=""" & C_DIRECTORY_QUICKERSITE & "/js/JQueryUI.css"" />" & vbcrlf
-dumpJavaScript=dumpJavaScript&"<link media=""all"" type=""text/css"" rel=""stylesheet"" href=""" & C_DIRECTORY_QUICKERSITE & "/css/media.css"" />" & vbcrlf
 dumpJavaScript=dumpJavaScript&"<script type=""text/javascript"" src=""" & C_DIRECTORY_QUICKERSITE & "/js/JQueryUI.js""></script>" & vbcrlf
 end if
+dumpJavaScript=dumpJavaScript&"<link media=""all"" type=""text/css"" rel=""stylesheet"" href=""" & C_DIRECTORY_QUICKERSITE & "/css/media.css"" />" & vbcrlf
 dumpJavaScript=dumpJavaScript&"<style type=""text/css"">" & vbcrlf
 dumpJavaScript=dumpJavaScript&".ui-datepicker {font-family:Arial;font-size:12px}" & vbcrlf
 dumpJavaScript=dumpJavaScript&".ui-dialog {font-family:Arial;font-size:12px;z-index:999}" & vbcrlf
