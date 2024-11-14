@@ -1839,11 +1839,11 @@ end function
 
 				dim medf,medfstr	
 				
-				dim padding, perc, tresh, imgSize : imgSize=600 : padding="" : countB=false
+				dim pad3, padding, perc, tresh, imgSize : imgSize=600 : padding="" : countB=false : pad3="padding:3px"
 
 				select case cMediafiles.count
 				
-					case 1 : perc="100" : tresh=1 : imgSize=1920 : padding="padding:0px 0px 0px 0px;"
+					case 1 : perc="100" : tresh=1 : imgSize=1920 : padding="padding:0px 0px 0px 0px;" : pad3=""
 					case 2 : perc="50" 	: tresh=1 : imgSize=1920
 					case 3 : perc="33" 	: tresh=1 
 					case 4 : perc="50" 	: tresh=1 
@@ -1878,10 +1878,10 @@ end function
 				select case iPMlocation
 					case 2,4 : margintop="5"
 					case else : margintop="20"
-				end select
+				end select			
 				
-				medfstr=vbcrlf & vbcrlf & vbcrlf & "<div class=""qspagemedia qsrow"" style=""margin-bottom:20px;margin-top:"&margintop&"px"">" & vbcrlf
-				medfstr=medfstr & "<div class=""qscolumn"" style="""&padding&"flex:" & perc & "%;max-width:" & perc & "%"">" & vbcrlf
+				medfstr=vbcrlf & "<div class=""qspagemedia qsrow"" style=""margin-bottom:20px;margin-top:" & margintop & "px"">" & vbcrlf
+				medfstr=medfstr & "<div class=""qscolumn"" style=""" & padding & "flex:" & perc & "%;max-width:" & perc & "%"">" & vbcrlf
 				
 				dim countB, countf, lightboxSAMPLE : lightboxSAMPLE=generatePassword : countf=0
 				
@@ -1898,10 +1898,11 @@ end function
 					
 					countf=countf+1
 				
-					medfstr=medfstr & "<!--" & countf & "--><a rel=""" & lightboxSAMPLE & """ href=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize=1920&FSR=0&img="
+					medfstr=medfstr & "<!--" & countf & "-->"
+					medfstr=medfstr & "<div style=""" & pad3 & """><a rel=""" & lightboxSAMPLE & """ href=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize=1920&FSR=0&img="
 					medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """ class=""QSPPIMG"">"
 					medfstr=medfstr & "<img src=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize="&imgSize&"&FSR=0&img="
-					medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """></a>" & vbcrlf
+					medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """></a></div>" & vbcrlf
 						
 				next
 				
@@ -1911,11 +1912,11 @@ end function
 				
 				select case iPMlocation		
 					
-					case 2 : insertMedia="<div class=""qsrow"" style=""display:flex""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;"">" & value & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:20px"">" & medfstr & "</div></div>"
+					case 2 : insertMedia="<div class=""qsrow""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;"">" & value & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:20px"">" & medfstr & "</div></div>"
 					
 					case 3 : insertMedia=value & medfstr
 					
-					case 4 : insertMedia="<div class=""qsrow"" style=""display:flex""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;padding-right:20px"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & value & "</div></div>"
+					case 4 : insertMedia="<div class=""qsrow""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;padding-right:20px"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & value & "</div></div>"
 				
 					case else : insertMedia=medfstr & value	
 					
@@ -1927,10 +1928,8 @@ end function
 		
 			insertMedia=value
 	
-		end if
+		end if	
 	
-	
-	end function
-	
+	end function	
 
 end class%>
