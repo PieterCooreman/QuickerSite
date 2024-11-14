@@ -1213,9 +1213,7 @@ aantalDagen=customer.aantalDagen
 sPage=Replace(sPage, "[C_VIRT_DIR]", C_VIRT_DIR,1,-1,1)
 sPage=Replace(sPage, "[C_DIRECTORY_QUICKERSITE]", C_DIRECTORY_QUICKERSITE,1,-1,1)
 sPage=Replace(sPage, "[HEADER]", convertStr(customer.sTopheader),1,-1,1)
-
 sPage=Replace(sPage, "[PAGEBODY]", insertMedia(pageBody),1,-1,1)
-sPage=Replace(sPage, "[PAGEBODY]", pageBody,1,-1,1)
 sPage=Replace(sPage, "[PAGEHEADER]", customer.sHeader & vbcrlf & sHeader,1,-1,1)
 sPage=Replace(sPage, "[PAGETITLE]", pageTitle,1,-1,1)
 dim bfVMENU
