@@ -1,24 +1,25 @@
 .qsrow {
-  display: flex; 
+	display: flex;
+	flex-wrap: wrap;
 }
 
 /* Create four equal columns that sits next to each other */
 .qscolumn {
   flex: 25%;
-  max-width: 25%;
-  padding: 0 4px;
+  max-width: 25%;  
 }
 
-.qscolumn img {
-  margin-top: 8px;
+.qscolumn img {  
   vertical-align: middle;
   width: 100%;
+  border-style:none;
+  margin:0px;
 }
 
 /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
 @media screen and (max-width: 800px) {
   .qscolumn {
     flex: 100% !important;
-    max-width: 100% !important;	
+    max-width: 100% !important;		
   }
 }
