@@ -639,7 +639,7 @@ function doUnload()
 					'if prepareLink<>"" then
 					if trim(Request.querystring("CKEditorFuncNum"))="" then
 					%>
-					<div style="padding:5px"><strong><a href="../bs_multifileupload.asp?sPath=<%=server.urlencode(prepareLink)%>">Upload multiple files to this folder</a></strong></div>
+					
 					<%
 					end if
 					%>
