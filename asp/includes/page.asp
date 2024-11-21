@@ -1839,11 +1839,11 @@ end function
 
 				dim medf,medfstr	
 				
-				dim pad3, padding, perc, tresh, imgSize : imgSize=600 : padding="" : countB=false : pad3="padding:3px"
+				dim pad4, padding, perc, tresh, imgSize : imgSize=600 : padding="" : countB=false : pad4="imgPadding"
 
 				select case cMediafiles.count
 				
-					case 1 : perc="100" : tresh=1 : imgSize=1920 : padding="padding:0px 0px 0px 0px;" : pad3=""
+					case 1 : perc="100" : tresh=1 : imgSize=1920 : padding="padding:0px 0px 0px 0px;" : pad4=""
 					case 2 : perc="50" 	: tresh=1 : imgSize=1920
 					case 3 : perc="33" 	: tresh=1 
 					case 4 : perc="50" 	: tresh=1 
@@ -1899,7 +1899,7 @@ end function
 					countf=countf+1
 				
 					medfstr=medfstr & "<!--" & countf & "-->"
-					medfstr=medfstr & "<div style=""" & pad3 & """><a rel=""" & lightboxSAMPLE & """ href=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize=1920&FSR=0&img="
+					medfstr=medfstr & "<div class=""" & pad4 & """><a rel=""" & lightboxSAMPLE & """ href=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize=1920&FSR=0&img="
 					medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """ class=""QSPPIMG"">"
 					medfstr=medfstr & "<img src=""" & Application("QS_CMS_C_DIRECTORY_QUICKERSITE") & "/showthumb.aspx?maxsize="&imgSize&"&FSR=0&img="
 					medfstr=medfstr & Application("QS_CMS_C_VIRT_DIR") & Application("QS_CMS_userfiles") & "pagemedia/" & iId & "/" & medf & """></a></div>" & vbcrlf
