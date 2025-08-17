@@ -230,6 +230,15 @@ end if
 end if
 set RS = nothing
 end if
+
+'cache only for 1 hour
+if convertBool(bUseCachingForPages) then
+if convertGetal(application("oneHourCache"))<>convertGetal(hour(time())) then
+application("oneHourCache")=convertGetal(hour(time()))
+clearPageCache()
+end if
+end if
+
 dumpError "Pick Customer",err
 On Error Goto 0
 end function
