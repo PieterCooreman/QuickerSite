@@ -35,7 +35,7 @@ dim maxPictureSize,resizePictureToPx,pictureResizeSecCode,MYQS_offlineLinkColor,
 qsscart="shoppingcart"
 bBrowseOnlineTemplates=false
 includeNS=false
-sBrowseOnlineTemplatesUrl="http://templates31.quickersite.com/"
+sBrowseOnlineTemplatesUrl="https://templates31.quickersite.com/"
 MYQS_offlineLinkColor="#AAAAAA"
 iLPDEFAULTOpenerQS=0
 QSCDO_smtpusessl=false
