@@ -6,7 +6,7 @@ on error resume next
 dim blockURL : blockURL=Request.ServerVariables("query_string")
 if instr(blockURL,"?")>0 then blockURL=left(blockURL,instr(blockURL,"?")-1) : end if
 select case trim(lcase(GetFileExtension(blockURL)))
-	case "php","log","exe","jsp","jspx","jws","config","py","pyc","pyd","wsgi","xml","svg","cfm","cfml","cgi","pl","pm","phtml","php3","php4","php5","php6","php7","js","bat","cmd","hta","scr","inc","pht","asa","asax","aspx","vbs","vbe","wsf","docm","xlsm","pptm","swf","xap","scf","resx"
+	case "php","log","exe","jsp","jspx","jws","config","py","pyc","pyd","wsgi","xml","svg","cfm","cfml","cgi","pl","pm","phtml","php3","php4","php5","php6","php7","js","bat","cmd","hta","scr","inc","pht","asa","asax","aspx","vbs","vbe","wsf","docm","xlsm","pptm","swf","xap","scf","resx","ico"
 	response.Status="404 File Not Found" : response.end
 end select
 on error goto 0
