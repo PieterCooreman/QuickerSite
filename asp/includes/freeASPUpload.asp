@@ -169,7 +169,14 @@ on error goto 0 'reset error handling
 					oUploadFile.Start = nCurPos-1
 					oUploadFile.Length = FindToken(vDataSep, nCurPos) - 2 - nCurPos
 					
-					If oUploadFile.Length > 0 Then UploadedFiles.Add LCase(sFieldName), oUploadFile
+					If oUploadFile.Length > 0  Then 
+select case lcase(getFileExtension(oUploadFile.FileName))
+case "jpg","jpeg","jpe","jp2","jfif","gif","bmp","png","psd","eps","ico","tif","tiff","ai","raw","tga","mng","svg","doc","rtf","txt","wpd","wps","csv","xml","xsd","sql","pdf","xls","mdb","ppt","docx","xlsx","pptx","ppsx","artx","mp3","wma","mid","midi","mp4","mpg","mpeg","wav","ram","ra","avi","mov","flv","m4a","m4v","htm","html","css","swf","js","rar","zip","ogv","ogg","webm","tar","gz","eot","ttf","ics","woff"
+UploadedFiles.Add LCase(sFieldName), oUploadFile
+case else
+'not allowed
+end select
+end if
 				End If
 			Else
 				Dim nEndOfData
