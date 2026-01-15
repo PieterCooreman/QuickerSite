@@ -4,6 +4,10 @@
 
 QuickerSite is an all-in-one CMS (Content Management System) built in ASP/VBScript. QuickerSite runs on both Windows Servers (IIS 5 and higher) and most other Windows OS versions through IIS Express (Visual Studio Code, Visual Studio, Webmatrix, etc). QuickerSite also requires ASP.NET (2.0) installed on your host. 
 
+## Demo
+
+The QuickerSite demosite showcases most features: <a href="https://demo.quickersite.com/" target="_blank">https://demo.quickersite.com/</a>
+
 ## Installation
 Install this application in the root of an IIS website and make sure IUSR has full permissions to the entire folder.
 Make sure "default.asp" is the default document. The default installation uses an Access database and therefore 32bits-support needs to be enabled for your IIS application pool.
