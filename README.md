@@ -2,7 +2,7 @@
 
 ## Introduction
 
-QuickerSite is an all-in-one CMS (Content Management System) built in ASP/VBScript. QuickerSite runs on both Windows Servers (IIS 5 and higher) and most other Windows OS versions through IIS Express (Visual Studio Code, Visual Studio, Webmatrix, etc). QuickerSite also requires ASP.NET (2.0) installed on your host. 
+QuickerSite (<a href="https://quickersite.com/" target="_blank">https://quickersite.com/</a>) is an all-in-one CMS (Content Management System) built in ASP/VBScript. QuickerSite runs on both Windows Servers (IIS 5 and higher) and most other Windows OS versions through IIS Express (Visual Studio Code, Visual Studio, Webmatrix, etc). QuickerSite also requires ASP.NET (2.0) installed on your host. 
 
 ## Demo
 
