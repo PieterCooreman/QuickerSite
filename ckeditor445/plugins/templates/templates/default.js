@@ -134,7 +134,38 @@ CKEDITOR.addTemplates("default", {
 					'</div>' +
 				'</div><p> </p>'
 		},
-		
+		{
+			title: "Testimonial Card",
+			image: "testimonial.jpg",
+			description: "Single testimonial with quote, photo, name, and title.",
+			html: 
+				'<div style="background: #f8f9fa; border-left: 4px solid #0d6efd; border-radius: 8px; padding: 30px; margin-bottom: 30px; max-width: 600px;">' +
+					'<div style="margin-bottom: 20px;">' +
+						'<svg width="40" height="40" viewBox="0 0 40 40" style="fill: #0d6efd; opacity: 0.3;">' +
+							'<path d="M10 16c0-3.866 3.134-7 7-7v4c-1.654 0-3 1.346-3 3v1h3v10h-7V16zm16 0c0-3.866 3.134-7 7-7v4c-1.654 0-3 1.346-3 3v1h3v10h-7V16z"/>' +
+						'</svg>' +
+					'</div>' +
+					'<p style="font-size: 18px; line-height: 1.7; color: #333; margin: 0 0 25px 0; font-style: italic;">' +
+						'"This product completely transformed how our team works. The intuitive interface and powerful features saved us countless hours every week."' +
+					'</p>' +
+					'<div style="display: flex; align-items: center; gap: 15px;">' +
+						'<img src="https://quickersite.com/placeholder.jpg" alt="Customer photo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;" />' +
+						'<div>' +
+							'<div style="font-weight: bold; color: #222; font-size: 16px;">Sarah Johnson</div>' +
+							'<div style="color: #666; font-size: 14px;">Head of Marketing, TechCorp</div>' +
+						'</div>' +
+					'</div>' +
+				'</div><p> </p>'
+		},
+		{
+			title: "Responsive Video Embed",
+			image: "video.jpg",
+			description: "16:9 responsive YouTube/Vimeo video player that scales perfectly.",
+			html: 
+				'<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">' +
+					'<iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' +
+				'</div><p> </p>'
+		},		
 		
         // 5. EMAIL-SAFE TEMPLATE (TABLE BASED)
         {
