@@ -34,6 +34,10 @@ CKEDITOR.config.templates_replaceContent = false;
  * Full CKEditor 4 Style Set for Modern Layouts
  * Mimicking Bootstrap 5.3 and Modern Design Trends
  */
+ 
+CKEDITOR.config.extraPlugins = 'magicline';
+CKEDITOR.config.magicline_color = '#6610f2'; // Use your purple brand color to make it visible
+CKEDITOR.config.magicline_everywhere = true;
 
 CKEDITOR.stylesSet.add('default', [
     /* --- SECTION: ALERTS (BOOTSTRAP 5.3) --- */
