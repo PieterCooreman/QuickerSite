@@ -40,32 +40,28 @@ CKEDITOR.stylesSet.add('default', [
     {
         name: 'Alert: Green',
         element: 'div',
-        attributes: { 
-            'class': 'alert alert-success', 
+        attributes: {             
             'style': 'padding: 1rem; margin-bottom: 1rem; border: 1px solid #badbcc; border-radius: 0.375rem; background-color: #d1e7dd; color: #0a3622;'
         }
     },
     {
         name: 'Alert: Red',
         element: 'div',
-        attributes: { 
-            'class': 'alert alert-danger', 
+        attributes: {            
             'style': 'padding: 1rem; margin-bottom: 1rem; border: 1px solid #f1aeb5; border-radius: 0.375rem; background-color: #f8d7da; color: #58151c;'
         }
     },
     {
         name: 'Alert: Blue',
         element: 'div',
-        attributes: { 
-            'class': 'alert alert-info', 
+        attributes: {             
             'style': 'padding: 1rem; margin-bottom: 1rem; border: 1px solid #b6effb; border-radius: 0.375rem; background-color: #cff4fc; color: #055160;'
         }
     },
     {
         name: 'Alert: Yellow',
         element: 'div',
-        attributes: { 
-            'class': 'alert alert-warning', 
+        attributes: {             
             'style': 'padding: 1rem; margin-bottom: 1rem; border: 1px solid #ffecb5; border-radius: 0.375rem; background-color: #fff3cd; color: #664d03;'
         }
     },
@@ -75,63 +71,55 @@ CKEDITOR.stylesSet.add('default', [
         name: 'Button: Blue',
         element: 'a',
         attributes: { 
-            'class': 'btn btn-primary',
-            'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #fff; background-color: #0D6EFD; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #0D6EFD;'
+           'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #fff; background-color: #0D6EFD; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #0D6EFD;'
         }
     },
     {
         name: 'Button: Green',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-success',
+        attributes: {            
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #fff; background-color: #198754; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #198754;'
         }
     },
 	{
         name: 'Button: Yellow',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-warning',
+        attributes: {             
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #664d03; background-color: #FFC107; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #FFC107;'
         }
     },
 	{
         name: 'Button: Cyan',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-info',
+        attributes: {             
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #FFF; background-color: #0DCAF0; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #0DCAF0;'
         }
     },
 	{
         name: 'Button: Dark',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-dark',
+        attributes: {             
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; background-color: #212529; color:#EEE; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #212529;'
         }
     },
 	{
         name: 'Button: Light',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-light',
+        attributes: {             
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #000; background-color: #EEE; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #DDD;'
         }
     },
 	{
         name: 'Button: Red',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-danger',
+        attributes: {             
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #FFF; background-color: #DC3545; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #DC3545;'
         }
     },
     {
         name: 'Button: Outline Dark',
         element: 'a',
-        attributes: { 
-            'class': 'btn btn-outline-dark',
+        attributes: {            
             'style': 'display: inline-block; font-weight: 400; line-height: 1.5; color: #212529; background-color: transparent; padding: 10px 20px; text-decoration: none; border-radius: 0.375rem; border: 1px solid #212529;'
         }
     },  
