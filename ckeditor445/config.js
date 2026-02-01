@@ -37,6 +37,11 @@ CKEDITOR.config.templates_replaceContent = false;
 
 CKEDITOR.stylesSet.add('default', [
     /* --- SECTION: ALERTS (BOOTSTRAP 5.3) --- */
+	{
+		name: 'Clear Style (Normal Text)',
+		element: 'p',
+		attributes: { 'class': '', 'style': '' }
+	},
     {
         name: 'Alert: Green',
         element: 'div',
