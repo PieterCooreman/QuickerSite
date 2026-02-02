@@ -1912,11 +1912,11 @@ end function
 				
 				select case iPMlocation		
 					
-					case 2 : insertMedia="<div class=""qsrow""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;"">" & value & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:20px"">" & medfstr & "</div></div>"
+					case 2 : insertMedia="<div class=""qsrow""><div class=""qscolumn"" style="""&padding&"flex:47%;max-width:47%;padding-left:1.4rem"">" & value & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%;padding-left:0px"">" & medfstr & "</div></div>"
 					
 					case 3 : insertMedia=value & medfstr
 					
-					case 4 : insertMedia="<div class=""qsrow""><div class=""qscolumn"" style="""&padding&"flex:50%;max-width:50%;padding-right:20px"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & value & "</div></div>"
+					case 4 : insertMedia="<div class=""qsrow""><div class=""qscolumn"" style="""&padding&"flex:47%;max-width:47%;padding-right:1.4rem"">" & medfstr & "</div><div class=""qscolumn"" style="""&padding&"flex: 50%; max-width: 50%"">" & value & "</div></div>"
 				
 					case else : insertMedia=medfstr & value	
 					
