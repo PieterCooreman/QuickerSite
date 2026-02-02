@@ -637,7 +637,7 @@ editor.instanceConfig("skin") = "kama"
 editor.config("entities")=false
 select case sToolbar
 case "siteBuilderBanner"
-editor.config("width") = 320
+editor.config("width") = 400
 editor.config("height") = 500
 case "siteBuilder","siteBuilderMail","template"
 editor.config("width") = 700
