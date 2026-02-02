@@ -39,13 +39,30 @@ CKEDITOR.config.extraPlugins = 'magicline';
 CKEDITOR.config.magicline_color = '#6610f2'; // Use your purple brand color to make it visible
 CKEDITOR.config.magicline_everywhere = true;
 
+CKEDITOR.config.extraPlugins = 'autogrow';
+CKEDITOR.config.autoGrow_minHeight = 300;
+CKEDITOR.config.autoGrow_maxHeight = 900;
+//CKEDITOR.config.autoGrow_bottomSpace = 50; // Extra space at the bottom for better UX
+
+CKEDITOR.on('dialogDefinition', function(ev) {
+    var dialogName = ev.data.name;
+    var dialogDefinition = ev.data.definition;
+
+    if (dialogName === 'table') {
+        var infoTab = dialogDefinition.getContents('info');
+        
+        // Force default width to 100%
+        var widthField = infoTab.get('txtWidth');
+        widthField['default'] = '100%';
+        
+        // Remove the default 1px border so you can use Bootstrap classes
+        var borderField = infoTab.get('txtBorder');
+        borderField['default'] = '0';
+    }
+});
+
 CKEDITOR.stylesSet.add('default', [
-    /* --- SECTION: ALERTS (BOOTSTRAP 5.3) --- */
-	{
-		name: 'Clear Style (Normal Text)',
-		element: 'p',
-		attributes: { 'class': '', 'style': '' }
-	},
+    /* --- SECTION: ALERTS (BOOTSTRAP 5.3) --- */	
     {
         name: 'Alert: Green',
         element: 'div',
@@ -161,36 +178,36 @@ CKEDITOR.config.toolbar_siteBuilder =
 
 CKEDITOR.config.toolbar_siteBuilderBanner = 
 [
-	['Save','Bold','Italic','Underline','Link'],
+	['Save','Templates','Bold','Italic','Underline','Link'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 	['Image','Flash','HorizontalRule','Smiley','NumberedList','BulletedList'],
-	['FontSize','TextColor','BGColor','Source']
+	['FontSize','TextColor','BGColor','Source','Styles']
 ] ;
 
 CKEDITOR.config.toolbar_siteBuilderMail = 
 [
-	['Paste','Bold','Italic','Underline'],
+	['Templates','Paste','Bold','Italic','Underline'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 	['Link','Image','Smiley'],
 	['NumberedList','BulletedList'],
-	['TextColor','BGColor','Source']
+	['TextColor','BGColor','Source','Styles']
 ] ;
 
 CKEDITOR.config.toolbar_siteBuilderMailNoSource = 
 [
-	['Paste','Bold','Italic','Underline'],
+	['Templates','Paste','Bold','Italic','Underline'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 	['Link','Image','Smiley'],
 	['NumberedList','BulletedList'],
-	['TextColor','BGColor']
+	['TextColor','BGColor','Styles']
 ] ;
 
 CKEDITOR.config.toolbar_siteBuilderMailSource = 
 [
-	['Paste','Bold','Italic','Underline'],
+	['Templates','Paste','Bold','Italic','Underline'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
 	['Link','Image','Smiley'],
 	['NumberedList','BulletedList'],
-	['TextColor','BGColor','Source']
+	['TextColor','BGColor','Source','Styles']
 ] ;
 //einde aanpassingen
