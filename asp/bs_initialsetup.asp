@@ -37,7 +37,13 @@ Response.Redirect ("bs_default.asp")
 end if
 end if
 else
-customer.sUrl="http://" & Request.ServerVariables ("http_host") & C_VIRT_DIR
+dim hhhtttppp
+If LCase(Request.ServerVariables("HTTPS")) = "on" Then
+hhhtttppp="https://"
+else
+hhhtttppp="http://"
+end if
+customer.sUrl=hhhtttppp & Request.ServerVariables ("http_host") & C_VIRT_DIR
 end if
 dim languageList
 set languageList=new cls_languageListNew
