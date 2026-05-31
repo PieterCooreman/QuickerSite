@@ -35,47 +35,72 @@
   var KW = ("dim|set|if|then|else|elseif|end|function|sub|for|each|to|step|next|do|while|wend|loop|" +
     "select|case|true|false|null|nothing|new|and|or|not|is|exit|byref|byval|public|private|class|" +
     "property|get|let|on|error|resume|goto|with|redim|preserve|const|option|explicit|in").split("|");
-  var kwRe = new RegExp("\\b(" + KW.join("|") + ")\\b", "gi");
+  // matches a COMPLETE word (used via .test on an already-isolated token); no /g flag
+  var kwRe = new RegExp("^(" + KW.join("|") + ")$", "i");
 
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
   function highlight(code, lang) {
-    // tokenise by lines to keep comments/strings sane
     var out = [];
     code.split("\n").forEach(function (line) {
-      out.push(hlLine(line, lang));
+      out.push(hlLine(line));
     });
     return out.join("\n");
   }
-  function hlLine(line, lang) {
-    var safe = esc(line);
-    // comment (VBScript ' )  -- only if not preceding code is a string; good enough
-    var comIdx = findComment(line);
-    var codePart = safe, comPart = "";
-    if (comIdx > -1) {
-      codePart = esc(line.slice(0, comIdx));
-      comPart = "<span class='tok-com'>" + esc(line.slice(comIdx)) + "</span>";
-    }
-    // strings
-    codePart = codePart.replace(/&quot;[^&]*?&quot;|"[^"]*"/g, function (m) {
-      return "<span class='tok-str'>" + m + "</span>";
-    });
-    // numbers
-    codePart = codePart.replace(/\b(\d+\.?\d*)\b/g, "<span class='tok-num'>$1</span>");
-    // keywords (avoid inside already-tagged spans is hard; acceptable here)
-    codePart = codePart.replace(kwRe, function (m) { return "<span class='tok-kw'>" + m + "</span>"; });
-    // bracket shortcodes [NAME]
-    codePart = codePart.replace(/\[([A-Z0-9_:]+)\]/g, "<span class='tok-fn'>[$1]</span>");
-    return codePart + comPart;
-  }
-  function findComment(line) {
-    var inStr = false;
-    for (var i = 0; i < line.length; i++) {
+  // Single-pass tokenizer over the RAW line. Each char is classified exactly
+  // once; token text is HTML-escaped on output so injected <span> markup can
+  // never be re-processed. Handles VBScript "" escaped quotes, ' comments,
+  // <,>,& inside strings, numbers, keywords and [SHORTCODE] tokens.
+  function span(cls, text) { return "<span class='" + cls + "'>" + esc(text) + "</span>"; }
+
+  function hlLine(line) {
+    var html = "";
+    var i = 0, n = line.length;
+    while (i < n) {
       var c = line[i];
-      if (c === '"') inStr = !inStr;
-      if (c === "'" && !inStr) return i;
+
+      // string literal: "...", with "" as an embedded quote
+      if (c === '"') {
+        var str = '"';
+        i++;
+        while (i < n) {
+          if (line[i] === '"') {
+            if (line[i + 1] === '"') { str += '""'; i += 2; continue; } // escaped quote
+            str += '"'; i++; break;                                      // closing quote
+          }
+          str += line[i]; i++;
+        }
+        html += span("tok-str", str);
+        continue;
+      }
+
+      // comment: ' to end of line (we're outside any string here)
+      if (c === "'") { html += span("tok-com", line.slice(i)); break; }
+
+      // [SHORTCODE] token
+      if (c === "[") {
+        var m = /^\[[A-Z0-9_:]+\]/.exec(line.slice(i));
+        if (m) { html += span("tok-fn", m[0]); i += m[0].length; continue; }
+      }
+
+      // number
+      if (/[0-9]/.test(c) && !/[A-Za-z_]/.test(line[i - 1] || "")) {
+        var num = /^[0-9]+\.?[0-9]*/.exec(line.slice(i))[0];
+        html += span("tok-num", num); i += num.length; continue;
+      }
+
+      // identifier / keyword
+      if (/[A-Za-z_]/.test(c)) {
+        var word = /^[A-Za-z_][A-Za-z0-9_]*/.exec(line.slice(i))[0];
+        if (kwRe.test(word)) html += span("tok-kw", word);
+        else html += esc(word);
+        i += word.length; continue;
+      }
+
+      // anything else: a single escaped char
+      html += esc(c); i++;
     }
-    return -1;
+    return html;
   }
 
   document.querySelectorAll("pre > code").forEach(function (code) {
