@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuickerSite Developer Guidelines</title>
+<meta name="description" content="Developer guidelines for QuickerSite (ASP/VBScript CMS): core classes, helper functions, the constant/CustomFunction engine, custom-code examples, and a prompt builder." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside>
+    <div class="brand">
+      <b>QuickerSite</b>
+      <span>Developer Guidelines &middot; v4.4</span>
+    </div>
+    <nav class="toc">
+      <div class="grp">Getting started</div>
+      <a href="#intro">1. Introduction</a>
+      <a href="#architecture">2. Architecture &amp; request flow</a>
+      <a href="#engine">3. The constant / CustomFunction engine</a>
+      <a href="#globals">4. Globals available to your code</a>
+
+      <div class="grp">Class reference</div>
+      <a href="#classes">5. Most-used classes</a>
+      <a href="#cls-page" class="sub">cls_page</a>
+      <a href="#cls-database" class="sub">cls_database</a>
+      <a href="#cls-customer" class="sub">cls_customer</a>
+      <a href="#cls-contact" class="sub">cls_contact</a>
+      <a href="#cls-form" class="sub">cls_form</a>
+      <a href="#cls-catalog" class="sub">cls_catalog &amp; item</a>
+      <a href="#cls-post" class="sub">cls_post</a>
+      <a href="#cls-feed" class="sub">cls_feed / gallery / poll</a>
+      <a href="#cls-constant" class="sub">cls_constant</a>
+      <a href="#cls-menu" class="sub">cls_menu / cls_messages</a>
+
+      <div class="grp">Toolbox</div>
+      <a href="#helpers">6. Helper functions</a>
+      <a href="#constants">7. Constants</a>
+
+      <div class="grp">Custom code</div>
+      <a href="#examples">8. Custom-code examples</a>
+      <a href="#ex-hello" class="sub">Hello / time of day</a>
+      <a href="#ex-params" class="sub">Parameters</a>
+      <a href="#ex-db" class="sub">Database query</a>
+      <a href="#ex-page" class="sub">Page objects</a>
+      <a href="#ex-auth" class="sub">Login-aware</a>
+      <a href="#ex-global" class="sub">Global code helpers</a>
+      <a href="#ex-form" class="sub">Custom form</a>
+      <a href="#builder">9. Prompt builder</a>
+    </nav>
+  </aside>
+
+  <!-- ============================ MAIN ============================ -->
+  <main>
+    <div class="topbar">
+      <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+      <b>QuickerSite Developer Guidelines</b>
+    </div>
+    <div class="content">
+
+<!-- ====================== 1. INTRO ====================== -->
+<section id="intro">
+  <h1>QuickerSite Developer Guidelines</h1>
+  <p class="lead">A practical reference for extending QuickerSite &mdash; an all-in-one CMS written in
+  classic ASP / VBScript that runs on IIS (5+) and IIS&nbsp;Express. This guide focuses on the parts you
+  actually touch when writing <b>custom code</b>: the object model, the helper library, and the
+  constant engine that lets you embed VBScript anywhere in a page.</p>
+
+  <div class="note">
+    <b>Who this is for.</b> Site developers and AI coding agents writing custom scripts inside QuickerSite.
+    Every signature and rule below was extracted directly from the source in <code>asp/includes/</code>.
+    File and line references point at the real implementation so you can verify anything.
+  </div>
+
+  <h3>The two ways to add custom logic</h3>
+  <ol>
+    <li><b>Constants (recommended).</b> Author a VBScript function in the backsite
+      (<code>bs_constantEdit.asp</code>), stored as a constant of type <code>QS_VBScript</code>. Invoke it
+      anywhere in page content with a shortcode like <code>[MYCODE]</code> or <code>[MYCODE(arg)]</code>.
+      This is the safe, supported path &mdash; see chapter&nbsp;3.</li>
+    <li><b>Module / application scripts.</b> Stand-alone <code>.asp</code> files (see <code>modules/</code>)
+      run via the page&rsquo;s <em>Application path</em> or <code>run()</code> / <code>Server.Execute</code>.
+      Useful for larger features and AJAX endpoints.</li>
+  </ol>
+
+  <h3>Ground rules (read before writing anything)</h3>
+  <ul>
+    <li><code>Option Explicit</code> is enforced site-wide (<code>asp/begin.asp:3</code>) &mdash;
+      <b>declare every variable with <code>Dim</code></b>.</li>
+    <li>The page is UTF-8, <code>Response.Buffer = true</code>, no-cache.</li>
+    <li>In production, <b>runtime errors in constants are swallowed</b> &mdash; a broken script silently
+      outputs nothing. Always code defensively and test with the <b>Test!</b> button first.</li>
+    <li>Never trust <code>Request(...)</code>. Sanitize for output, escape for SQL.</li>
+  </ul>
+</section>
+
+<!-- ====================== 2. ARCHITECTURE ====================== -->
+<section id="architecture">
+  <h2>2. Architecture &amp; request flow <a class="anchor" href="#architecture">#</a></h2>
+  <p>Every public request lands on <code>default.asp</code>, which is a three-line orchestrator:</p>
+  <pre><code data-lang="none">&lt;!-- #include file="asp/begin.asp"--&gt;
+&lt;%=run(execBeforePageLoad)%&gt;
+&lt;!-- #include file="asp/process.asp"--&gt;</code></pre>
+
+  <h3>What <code>begin.asp</code> sets up</h3>
+  <p><code>asp/begin.asp</code> is the master include. It pulls in ~140 include files (all the classes and
+  helpers) and creates the global objects you will use. By the time your code runs, these already exist:</p>
+  <table>
+    <thead><tr><th>Global</th><th>Type</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><code>db</code></td><td>cls_database</td><td>Database access. <code>db.Execute(sql)</code>, <code>db.GetDynamicRS</code>.</td></tr>
+      <tr><td><code>customer</code></td><td>cls_customer</td><td>The current site/tenant and all its settings. <code>customer.pick(cId)</code> already called.</td></tr>
+      <tr><td><code>selectedPage</code></td><td>cls_page</td><td>The page being requested (picked by <code>iId</code> or <code>sCode</code>).</td></tr>
+      <tr><td><code>logon</code></td><td>cls_logonEdit</td><td>Authentication / logged-in user state.</td></tr>
+      <tr><td><code>message</code></td><td>cls_Messages</td><td>Status / error message collector.</td></tr>
+      <tr><td><code>cPopup</code></td><td>cls_popup</td><td>Popup / lightbox handler.</td></tr>
+      <tr><td><code>cId</code></td><td>function&nbsp;&rarr;&nbsp;Integer</td><td>Current customer id. The multi-tenant scoping key for every query.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Rendering pipeline</h3>
+  <ol>
+    <li><code>process.asp</code> decides what the request is (page view, login, form post, search, AJAX&hellip;).</li>
+    <li>The chosen <code>cls_page</code> is rendered via <code>selectedPage.buildTemplate</code>
+      (<code>asp/includes/page.asp:1158</code>), which substitutes <code>[PAGEBODY]</code>, <code>[PAGEMENU]</code>,
+      meta tags, etc. into the template HTML.</li>
+    <li>While building the body, <code>treatConstants()</code> (<code>asp/includes/insertConstants.asp</code>)
+      scans the text for <code>[SHORTCODE]</code> tokens and replaces them &mdash; including running your
+      VBScript constants. <b>This is where your custom code executes.</b></li>
+  </ol>
+
+  <div class="tip">
+    <b>Multi-tenant.</b> One QuickerSite install can host many sites, each identified by <code>cId</code>.
+    Almost every table has an <code>iCustomerID</code> column. <b>Always scope your queries with
+    <code>iCustomerID = cId</code></b> or you will leak/clash data across sites.
+  </div>
+</section>
+
+<!-- ====================== 3. ENGINE ====================== -->
+<section id="engine">
+  <h2>3. The constant / CustomFunction engine <a class="anchor" href="#engine">#</a></h2>
+  <p>This is the most important chapter for custom development. Understand it and everything else follows.</p>
+
+  <h3>How a constant is stored</h3>
+  <p>A custom script is a row in <code>tblConstant</code> of type <code>QS_VBScript</code> (value&nbsp;<code>2</code>),
+  edited in <code>bs_constantEdit.asp</code>. It has three fields:</p>
+  <table>
+    <thead><tr><th>Field</th><th>DB column</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Parameters</td><td><code>sParameters</code></td><td>The VBScript argument list, e.g. <code>iCount, sCategory</code>.</td></tr>
+      <tr><td>Function body</td><td><code>sValue</code></td><td>The code that produces output.</td></tr>
+      <tr><td>Global Code</td><td><code>sGlobal</code></td><td>Optional helper Functions/Classes, loaded via <code>ExecuteGlobal</code> before the body runs.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What QuickerSite does with it</h3>
+  <p>At render time, <code>executeConstant()</code> (<code>asp/includes/insertConstants.asp:246</code>) wraps your
+  body like this and runs it:</p>
+  <pre><code data-lang="vbs">function CustomFunction(&lt;your Parameters&gt;)
+    &lt;your Function body&gt;
+end function
+executeConstant = CustomFunction(&lt;actual arguments from the shortcode&gt;)</code></pre>
+
+  <div class="warn">
+    <b>The Response.Write trick.</b> Before running, the engine text-replaces every
+    <code>response.write</code> in your body with <code>CustomFunction = CustomFunction &amp;</code>.
+    So both of these append to the returned output:
+  </div>
+  <pre><code data-lang="vbs">' Style A - looks like normal ASP
+Response.Write "&lt;p&gt;Hello&lt;/p&gt;"
+
+' Style B - assign directly (identical effect)
+CustomFunction = CustomFunction &amp; "&lt;p&gt;Hello&lt;/p&gt;"</code></pre>
+
+  <h3>The hard rules</h3>
+  <ul>
+    <li><b>Return a string fragment only.</b> Do not emit <code>&lt;html&gt;</code>/<code>&lt;body&gt;</code>,
+      do not set headers, <b>never call <code>Response.End</code></b> &mdash; your output is spliced into an
+      existing page where the shortcode appears.</li>
+    <li><b>Errors are silent in production.</b> <code>executeConstant</code> runs under
+      <code>On Error Resume Next</code>; if your script errors, it returns <code>""</code> and the visitor
+      sees nothing. Errors are only shown in <b>Test!</b> mode.</li>
+    <li><b>Declare everything</b> (<code>Option Explicit</code>).</li>
+    <li><b>Nesting is limited.</b> Constants can contain other shortcodes, resolved recursively up to a small depth.</li>
+  </ul>
+
+  <h3>Invoking your constant</h3>
+  <pre><code data-lang="none">[MYCODE]              ' no parameters
+[MYCODE(5)]           ' one parameter
+[MYCODE(5, "news")]   ' multiple parameters - strings in double quotes</code></pre>
+  <p>Put the shortcode in any page body, list item, template, header/footer, or even another constant.
+  The matching regex is <code>asp/includes/insertConstants.asp:49</code>.</p>
+
+  <h3>The author/test loop</h3>
+  <ol>
+    <li>Backsite &rarr; <b>ASP/VBScripts</b> (<code>bs_scriptList.asp</code>) &rarr; new item.</li>
+    <li>Fill <b>Parameters</b>, <b>Function body</b>, optional <b>Global Code</b>.</li>
+    <li>Click <b>Test!</b>. The test harness (<code>bs_constantTest.asp</code>) runs the script and shows
+      <em>TEST OK!</em> with the output, or <em>TEST FAILED!</em> with the error. Supply sample parameter
+      values (in double quotes) when prompted.</li>
+    <li><b>Save</b>, then insert <code>[YOURNAME]</code> into a page.</li>
+  </ol>
+</section>
+
+<!-- ====================== 4. GLOBALS ====================== -->
+<section id="globals">
+  <h2>4. Globals available to your code <a class="anchor" href="#globals">#</a></h2>
+  <p>Because constants run inside the fully-loaded page context, the entire object model and helper library
+  is in scope. The objects you will reach for most:</p>
+
+  <h4>db &mdash; database</h4>
+  <pre><code data-lang="vbs">Dim rs
+Set rs = db.Execute("select sTitle from tblPage where iCustomerID=" &amp; cId &amp; " and bOnline=" &amp; getSQLBoolean(true))
+Do While not rs.EOF
+    Response.Write "&lt;li&gt;" &amp; sanitize(rs("sTitle")) &amp; "&lt;/li&gt;"
+    rs.MoveNext
+Loop
+rs.Close : Set rs = Nothing</code></pre>
+
+  <h4>customer &mdash; current site settings</h4>
+  <p>Common reads: <code>customer.siteName</code>, <code>customer.sDatumFormat</code>,
+  <code>customer.language</code>, <code>customer.sUrl</code>, <code>customer.sQSUrl</code>,
+  <code>customer.bUserFriendlyURL</code>. It also exposes collections like
+  <code>customer.forms</code>, <code>customer.feeds</code>, <code>customer.galleries</code>,
+  <code>customer.constants</code> (each returns a <code>Scripting.Dictionary</code>).</p>
+
+  <h4>selectedPage &mdash; the current page</h4>
+  <p>Common reads: <code>selectedPage.iId</code>, <code>selectedPage.sTitle</code>,
+  <code>selectedPage.sValue</code>, <code>selectedPage.iParentID</code>. Useful methods:
+  <code>selectedPage.subPages(true)</code>, <code>selectedPage.listitems(true)</code>,
+  <code>selectedPage.parentPage</code>. See <a href="#cls-page">cls_page</a>.</p>
+
+  <h4>cId &amp; localization</h4>
+  <p><code>cId</code> returns the current customer id (always use it to scope queries).
+  <code>l("key")</code> returns a localized label string.</p>
+
+  <div class="note"><b>Convention:</b> the codebase prefixes variables by type &mdash;
+    <code>i</code>&nbsp;integer, <code>s</code>&nbsp;string, <code>b</code>&nbsp;boolean, <code>d</code>&nbsp;date.
+    Class fields and DB columns follow the same scheme (e.g. <code>iId</code>, <code>sTitle</code>, <code>bOnline</code>, <code>dCreatedTS</code>).</p>
+</section>
+
+<!-- ====================== 5. CLASSES ====================== -->
+<section id="classes">
+  <h2>5. Most-used classes <a class="anchor" href="#classes">#</a></h2>
+  <p>Ranked by how often they are instantiated across the codebase (<code>new cls_*</code> count). These are
+  the classes worth knowing. All follow the same lifecycle pattern:</p>
+  <pre><code data-lang="vbs">Dim obj
+Set obj = new cls_page      ' 1. create
+obj.Pick(123)               ' 2. load a row by id (customer-scoped where relevant)
+Response.Write obj.sTitle   ' 3. read properties
+' obj.getRequestValues()    ' 4. (back-office) fill from Request.Form
+' obj.Save                  ' 5. validate + upsert  -> returns True/False
+' obj.remove                ' 6. delete (cls_contact calls it .delete)
+Set obj = Nothing           ' 7. release</code></pre>
+  <p>Collections (e.g. <code>customer.forms</code>, <code>page.listitems</code>) return a
+  <code>Scripting.Dictionary</code> keyed by id. Iterate with <code>For Each key In dict ... dict(key) ...</code>.</p>
+
+  <table>
+    <thead><tr><th>Class</th><th>Uses</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td><code>cls_page</code></td><td>49</td><td>Pages, list pages, list items, menu nodes, rendering</td></tr>
+      <tr><td><code>cls_mail_message</code></td><td>20</td><td>Email composition/sending</td></tr>
+      <tr><td><code>cls_database</code></td><td>19</td><td>DB connection &amp; queries (the <code>db</code> global)</td></tr>
+      <tr><td><code>cls_form</code></td><td>15</td><td>Forms + submissions</td></tr>
+      <tr><td><code>cls_contact</code></td><td>15</td><td>Site members / intranet users</td></tr>
+      <tr><td><code>cls_post</code></td><td>13</td><td>Forum / theme posts &amp; replies</td></tr>
+      <tr><td><code>cls_catalogItem</code></td><td>12</td><td>Catalog (product/data) items</td></tr>
+      <tr><td><code>cls_menu</code></td><td>11</td><td>Menu / breadcrumb / back-office tree HTML</td></tr>
+      <tr><td><code>cls_catalog</code> / <code>cls_feed</code> / <code>cls_gallery</code> / <code>cls_poll</code> / <code>cls_customer</code> / <code>cls_constant</code></td><td>6&ndash;8</td><td>Catalogs, RSS feeds, image galleries, polls, the site object, custom-code constants</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ---------- cls_page ---------- -->
+  <div class="classcard" id="cls-page">
+    <h3>cls_page <span class="badge hot">most used</span> <a class="anchor" href="#cls-page">#</a></h3>
+    <p><code>asp/includes/page.asp</code> &mdash; one class to rule everything content: normal pages,
+    container/menu pages, list pages and their list items, external links and the homepage.</p>
+
+    <h4>Key properties</h4>
+    <ul class="member-list">
+      <li><code>iId</code> <span class="desc">Primary key (Null for a new, unsaved page).</span></li>
+      <li><code>iParentID</code>, <code>iListPageID</code> <span class="desc">Parent in the menu tree / owning list page.</span></li>
+      <li><code>iCustomerID</code> <span class="desc">Owning tenant (defaults to <code>cId</code>).</span></li>
+      <li><code>sTitle</code>, <code>sValue</code>, <code>sValueTextOnly</code> <span class="desc">Title, HTML body, plain-text body.</span></li>
+      <li><code>sCode</code> <span class="desc">Application code (uppercase) used by <code>pickByCode</code> and the <code>sCode</code> form field.</span></li>
+      <li><code>sUserFriendlyURL</code> <span class="desc">SEO slug.</span></li>
+      <li><code>bOnline</code>, <code>bDeleted</code>, <code>bContainerPage</code> <span class="desc">Published / soft-deleted / is a menu container.</span></li>
+      <li><code>iRang</code> <span class="desc">Sort order among siblings.</span></li>
+      <li><code>dOnlineFrom</code>, <code>dOnlineUntill</code>, <code>dPage</code> <span class="desc">Publish window and page date.</span></li>
+      <li><code>iHits</code>, <code>iVisitors</code> <span class="desc">Counters.</span></li>
+      <li><code>sOrderBY</code> <span class="desc">Presence marks the page as a <b>list page</b>; defines item sort.</span></li>
+      <li><code>iCatalogId</code>, <code>iFormID</code>, <code>iFeedId</code>, <code>iTemplateID</code>, <code>iThemeID</code> <span class="desc">Attached catalog / form / feed / template / theme.</span></li>
+      <li><code>sProp01</code>&hellip;<code>sProp08</code> <span class="desc">Eight generic page-block content slots (<code>[PAGE_BLOCK01..08]</code>).</span></li>
+    </ul>
+
+    <h4>Key methods</h4>
+    <ul class="member-list">
+      <li><span class="sig">Pick(id)</span> <span class="badge db">db</span> <span class="desc">Load a page by <code>iId</code> into all properties.</span></li>
+      <li><span class="sig">pickByCode(sPageCode)</span> <span class="badge db">db</span> <span class="desc">Load by <code>sCode</code> (customer-scoped). <code>pickByCodeNOCID</code> ignores the tenant filter.</span></li>
+      <li><span class="sig">Save</span> <span class="badge db">db</span> <span class="desc">Validate (<code>Check()</code>) then insert/update <code>tblPage</code>; handles ranking, homepage, cache invalidation. Returns True/False.</span></li>
+      <li><span class="sig">remove / canBeDeleted()</span> <span class="badge db">db</span> <span class="desc">Delete (soft via <code>bDeleted</code>) and guard checks.</span></li>
+      <li><span class="sig">subPages(onlineOnly)</span> <span class="badge db">db</span> <span class="desc">Dictionary of child pages (<code>iParentID = iId</code>), by <code>iRang</code>.</span></li>
+      <li><span class="sig">listitems(onlineOnly)</span> <span class="badge db">db</span> <span class="desc">Dictionary of fully-loaded list items for a list page. <code>fastlistitems</code> is the lightweight variant.</span></li>
+      <li><span class="sig">parentPage / listPage / theme / catalog / Feed / form</span> <span class="desc">Return the related object.</span></li>
+      <li><span class="sig">getLink(includePijltje) / getSimpleLink / getClickLink(BO)</span> <span class="badge html">html</span> <span class="desc">Anchor HTML to this page.</span></li>
+      <li><span class="sig">buildTemplate</span> <span class="badge html">html</span> <span class="desc">Full page render (templates + token substitution). Used by the pipeline; rarely called from a constant.</span></li>
+      <li><span class="sig">addHit() / addVisit()</span> <span class="badge db">db</span> <span class="desc">Increment counters.</span></li>
+      <li><span class="sig">getRequestValues()</span> <span class="desc">Back-office: populate from <code>Request.Form</code> (permission-gated).</span></li>
+    </ul>
+  </div>
+
+  <!-- ---------- cls_database ---------- -->
+  <div class="classcard" id="cls-database">
+    <h3>cls_database (the <code>db</code> global) <a class="anchor" href="#cls-database">#</a></h3>
+    <p><code>asp/includes/database.asp</code> &mdash; abstracts Access / SQL&nbsp;Server / MySQL behind one
+    object. No public properties; use the global <code>db</code> instance.</p>
+    <ul class="member-list">
+      <li><span class="sig">Execute(sql)</span> <span class="desc">Run SQL against the main DB; returns an ADODB recordset (or fires DML). Your workhorse for reads.</span></li>
+      <li><span class="sig">GetDynamicRS</span> <span class="desc">Returns an updatable recordset (<code>CursorType=1</code>, <code>LockType=3</code>) for inserts/edits via <code>.AddNew</code>/<code>.Update</code>.</span></li>
+      <li><span class="sig">ExecuteLabels(sql) / GetDynamicRSLabels</span> <span class="desc">Same, against the separate labels database.</span></li>
+      <li><span class="sig">getConn() / getConnLabels()</span> <span class="desc">Lazily-opened, cached ADODB connections.</span></li>
+    </ul>
+    <div class="warn"><b>SQL portability.</b> Because the DB engine varies, use the helpers
+      <code>getSQLBoolean(b)</code>, <code>getSQLDate(d)</code>, <code>getSQLDateFunction()</code> and
+      <code>getTOPSyntax(n, sql)</code> instead of hard-coding <code>True</code>/<code>#dates#</code>/<code>TOP</code>.</div>
+  </div>
+
+  <!-- ---------- cls_customer ---------- -->
+  <div class="classcard" id="cls-customer">
+    <h3>cls_customer (the <code>customer</code> global) <a class="anchor" href="#cls-customer">#</a></h3>
+    <p><code>asp/includes/customer.asp</code> &mdash; the site/tenant: every site-wide setting plus accessors
+    to all content collections. Already loaded as <code>customer</code>.</p>
+    <h4>Useful properties</h4>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>sName</code>, <code>siteName</code>, <code>siteTitle</code>, <code>sURL</code>, <code>sSiteSlogan</code> <span class="desc">Identity.</span></li>
+      <li><code>sDatumFormat</code>, <code>language</code> <span class="desc">Date format &amp; language id.</span></li>
+      <li><code>webmasterEmail</code>, <code>webmaster</code>, <code>copyRight</code> <span class="desc">Contact / footer info.</span></li>
+      <li><code>bUserFriendlyURL</code>, <code>bUseCachingForPages</code>, <code>bShoppingCart</code>, <code>bIntranet</code>, <code>bCatalog</code> <span class="desc">Feature flags.</span></li>
+      <li><code>sHeader</code>, <code>sFooter</code>, <code>sLeftBanner</code>, <code>sRightBanner</code> <span class="desc">Layout HTML.</span></li>
+    </ul>
+    <h4>Useful methods / properties</h4>
+    <ul class="member-list">
+      <li><span class="sig">sVDUrl / sQSUrl</span> <span class="desc">Site URL with virtual-dir / QuickerSite-dir appended.</span></li>
+      <li><span class="sig">forms / feeds / galleries / polls / catalogs / templates / themes / constants</span> <span class="badge db">db</span> <span class="desc">Dictionaries of the matching objects.</span></li>
+      <li><span class="sig">newsletters / newsletterCategories / guestbooks / popups / mails / tickets</span> <span class="badge db">db</span> <span class="desc">More content collections.</span></li>
+      <li><span class="sig">getHomePageObj</span> <span class="desc">The homepage <code>cls_page</code>.</span></li>
+      <li><span class="sig">iTotalHits / iMaxVisits / nmrbContacts</span> <span class="badge db">db</span> <span class="desc">Lazily-computed stats.</span></li>
+      <li><span class="sig">cacheConstants / cacheFeeds / cacheGalleries / cachethemes</span> <span class="desc">Rebuild the Application caches (call after editing constants programmatically).</span></li>
+    </ul>
+  </div>
+
+  <!-- ---------- cls_contact ---------- -->
+  <div class="classcard" id="cls-contact">
+    <h3>cls_contact <a class="anchor" href="#cls-contact">#</a></h3>
+    <p><code>asp/includes/contact.asp</code> &mdash; a site member / intranet user (login, profile fields,
+    avatar, permissions, forum posts).</p>
+    <h4>Properties</h4>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>iCustomerID</code>, <code>iStatus</code> <span class="desc">Identity &amp; status.</span></li>
+      <li><code>sEmail</code>, <code>sNickName</code>, <code>sPw</code>, <code>sAvatar</code> <span class="desc">Login &amp; display.</span></li>
+      <li><code>fields</code> <span class="desc">Dictionary of profile field-id &rarr; value.</span></li>
+      <li><code>dLastLoginTS</code>, <code>dCreatedTS</code> <span class="desc">Timestamps.</span></li>
+    </ul>
+    <h4>Methods</h4>
+    <ul class="member-list">
+      <li><span class="sig">Pick(id) / quickPick(id)</span> <span class="badge db">db</span> <span class="desc">Load with / without profile field values.</span></li>
+      <li><span class="sig">Save(contactFields)</span> <span class="badge db">db</span> <span class="desc">Validate &amp; upsert (pass the field definitions).</span></li>
+      <li><span class="sig">delete</span> <span class="badge db">db</span> <span class="desc">Remove the contact and all dependents (this is the &ldquo;remove&rdquo;).</span></li>
+      <li><span class="sig">posts</span> <span class="badge db">db</span> <span class="desc">Dictionary of the member&rsquo;s <code>cls_post</code>.</span></li>
+      <li><span class="sig">resetPW</span> <span class="badge db">db</span> <span class="desc">Generate a new password &amp; email it.</span></li>
+      <li><span class="sig">getAvatar / sImgTagAvatar(size)</span> <span class="badge html">html</span> <span class="desc">Avatar HTML (gravatar fallback).</span></li>
+      <li><span class="sig">savePermissions(iBodyID, iTitleID, iLPID)</span> <span class="badge db">db</span> <span class="desc">Per-page access rights.</span></li>
+    </ul>
+    <p>The logged-in member is reachable via <code>getContact(id)</code> and the <code>logon</code> object.</p>
+  </div>
+
+  <!-- ---------- cls_form ---------- -->
+  <div class="classcard" id="cls-form">
+    <h3>cls_form <a class="anchor" href="#cls-form">#</a></h3>
+    <p><code>asp/includes/form.asp</code> &mdash; a form definition, its fields, submission storage,
+    email/autoresponder and an optional on-submit script.</p>
+    <h4>Properties</h4>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>sName</code>, <code>sCode</code> <span class="desc">Identity &amp; shortcode.</span></li>
+      <li><code>sIntro</code>, <code>sFeedback</code>, <code>sButton</code>, <code>sReset</code> <span class="desc">Display text.</span></li>
+      <li><code>sTo</code>, <code>sSubject</code>, <code>bSendEmail</code>, <code>bAttachFiles</code>, <code>bCaptcha</code> <span class="desc">Mail &amp; behaviour.</span></li>
+      <li><code>bAutoResponder</code>, <code>sAutoResponse</code>, <code>sAutoResponseSubject</code> <span class="desc">Autoresponder.</span></li>
+      <li><code>sRedirect</code>, <code>sScriptUponSubmission</code> <span class="desc">Post-submit redirect &amp; custom hook.</span></li>
+    </ul>
+    <h4>Methods</h4>
+    <ul class="member-list">
+      <li><span class="sig">Pick(id) / Save / remove</span> <span class="badge db">db</span></li>
+      <li><span class="sig">fields</span> <span class="badge db">db</span> <span class="desc">Dictionary of <code>cls_formField</code> by <code>iRang</code>.</span></li>
+      <li><span class="sig">build(action, align, buttonType, itemID)</span> <span class="badge html">html</span> <span class="desc">Render the full form HTML; on postback it validates, uploads, stores a submission, mails, runs the script, then shows feedback or redirects.</span></li>
+      <li><span class="sig">submissions / removeAllSubmissions</span> <span class="badge db">db</span></li>
+    </ul>
+    <div class="tip">To drop a managed form into a page you usually just reference it via the page&rsquo;s
+      <em>Form</em> setting; in custom code you can render one with
+      <code>Set f = new cls_form : f.Pick(id) : Response.Write f.build("default.asp","","submit",0)</code>.</div>
+  </div>
+
+  <!-- ---------- cls_catalog ---------- -->
+  <div class="classcard" id="cls-catalog">
+    <h3>cls_catalog &amp; cls_catalogItem <a class="anchor" href="#cls-catalog">#</a></h3>
+    <p><code>asp/includes/catalog.asp</code> + <code>catalogItem.asp</code> &mdash; structured, field-driven
+    content (products, directories, datasets) with images, files and an optional attached form.</p>
+    <h4>cls_catalog</h4>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>sName</code>, <code>sItemName</code>, <code>sOrderItemsBy</code>, <code>iPageSize</code>, <code>bSearchable</code>, <code>iFormID</code></li>
+      <li><span class="sig">Pick(id) / Save / remove</span> <span class="badge db">db</span></li>
+      <li><span class="sig">items</span> <span class="badge db">db</span> <span class="desc">Dictionary of <code>cls_catalogItem</code>.</span></li>
+      <li><span class="sig">fields(sType)</span> <span class="badge db">db</span> <span class="desc">Field definitions; <code>sType</code> filters (&ldquo;search&rdquo;,&ldquo;public&rdquo;).</span></li>
+      <li><span class="sig">form / filetypes</span> <span class="desc">Related objects.</span></li>
+    </ul>
+    <h4>cls_catalogItem</h4>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>sTitle</code>, <code>iCatalogID</code>, <code>fields</code> (field-id&rarr;value), <code>sPicExt</code>, <code>dDate</code></li>
+      <li><span class="sig">Pick(id) / Save() / remove</span> <span class="badge db">db</span></li>
+      <li><span class="sig">showPic(iThumbnailSize)</span> <span class="badge html">html</span> <span class="desc"><code>&lt;img&gt;</code>/lightbox link.</span></li>
+      <li><span class="sig">sFiche</span> <span class="badge html">html</span> <span class="desc">Item detail view (template-driven).</span></li>
+      <li><span class="sig">files / submissions</span> <span class="badge db">db</span></li>
+    </ul>
+  </div>
+
+  <!-- ---------- cls_post ---------- -->
+  <div class="classcard" id="cls-post">
+    <h3>cls_post <a class="anchor" href="#cls-post">#</a></h3>
+    <p><code>asp/includes/post.asp</code> &mdash; a forum/theme topic or reply (a reply has
+    <code>iPostID</code> set to its parent topic).</p>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>iThemeID</code>, <code>iPostID</code>, <code>iContactID</code>, <code>sSubject</code>, <code>sBody</code>, <code>sKey</code>, <code>bNeedsToBeValidated</code></li>
+      <li><span class="sig">Pick(id) / Save / remove</span> <span class="badge db">db</span> <span class="desc">Save also notifies subscribers by email.</span></li>
+      <li><span class="sig">buildPost(themeObj, showReplies) / buildShortPost</span> <span class="badge html">html</span> <span class="desc">Interactive / compact post HTML.</span></li>
+      <li><span class="sig">replies(loggedOnAsModerator)</span> <span class="badge db">db</span> <span class="desc">Child replies.</span></li>
+      <li><span class="sig">contact / theme / parentTopic</span> <span class="desc">Related objects.</span></li>
+    </ul>
+  </div>
+
+  <!-- ---------- cls_feed / gallery / poll ---------- -->
+  <div class="classcard" id="cls-feed">
+    <h3>cls_feed / cls_gallery / cls_poll <a class="anchor" href="#cls-feed">#</a></h3>
+    <p>Three &ldquo;widget&rdquo; classes with the same shape: <code>Pick(id)</code>, <code>Save</code>,
+    <code>remove</code>, a <code>sCode</code> shortcode, and a <code>build</code> that returns ready HTML.
+    They are usually invoked through their dedicated shortcodes
+    (<code>[qs_feed:CODE]</code>, <code>[qs_gallery:CODE]</code>, <code>[QS_POLL:CODE]</code>) rather than from VBScript.</p>
+    <ul class="member-list">
+      <li><b>cls_feed</b> (<code>feed.asp</code>) &mdash; RSS/ATOM ingestion. <code>sUrl</code>, <code>iMaxItems</code>, <code>iCache</code>, <code>sTemplate</code>; <span class="sig">build</span> <span class="badge html">html</span> fetches &amp; renders.</li>
+      <li><b>cls_gallery</b> (<code>gallery.asp</code>) &mdash; image gallery. <code>sPath</code>, <code>iThumbSize</code>, <code>iPicsInRow</code>, <code>sType</code> (SC/SS/NS&hellip;); <span class="sig">build</span> <span class="badge html">html</span> scans the folder &amp; renders thumbnails/slideshow.</li>
+      <li><b>cls_poll</b> (<code>poll.asp</code>) &mdash; voting. <code>sQuestion</code>, <code>Questions</code> (1..15), voting window; <span class="sig">build(withdiv)</span> / <span class="sig">showresults</span> / <span class="sig">registerVote</span>.</li>
+    </ul>
+  </div>
+
+  <!-- ---------- cls_constant ---------- -->
+  <div class="classcard" id="cls-constant">
+    <h3>cls_constant <a class="anchor" href="#cls-constant">#</a></h3>
+    <p><code>asp/includes/constant.asp</code> &mdash; the storage object behind your custom scripts and text/HTML
+    snippets. You rarely instantiate it directly, but it is good to know the shape.</p>
+    <ul class="member-list">
+      <li><code>iId</code>, <code>sConstant</code> (the name/shortcode), <code>iType</code> (<code>0</code> text, <code>1</code> HTML, <code>2</code> VBScript), <code>sValue</code> (body), <code>sParameters</code>, <code>sGlobal</code></li>
+      <li><code>dOnlineFrom</code>, <code>dOnlineUntill</code> <span class="desc">Optional active window.</span></li>
+      <li><span class="sig">Pick(id) / Save / remove / getRequestValues()</span> <span class="badge db">db</span></li>
+      <li><span class="sig">bOnline / statusString</span> <span class="desc">Active-window state.</span></li>
+    </ul>
+    <p>List all of a site&rsquo;s constants with <code>customer.constants</code>; the ones of type
+    <code>QS_VBScript</code> are your scripts.</p>
+  </div>
+
+  <!-- ---------- cls_menu / messages ---------- -->
+  <div class="classcard" id="cls-menu">
+    <h3>cls_menu &amp; cls_Messages <a class="anchor" href="#cls-menu">#</a></h3>
+    <h4>cls_menu <span class="badge html">html</span></h4>
+    <p><code>asp/includes/menu.asp</code> &mdash; renders navigation HTML.</p>
+    <ul class="member-list">
+      <li><span class="sig">getMenu(pageObj)</span> <span class="desc">Public site menu (cached).</span></li>
+      <li><span class="sig">getIntranetMenu(pageObj)</span> <span class="desc">Intranet menu.</span></li>
+      <li><span class="sig">showParents(pageId, withLink)</span> <span class="desc">Breadcrumb trail.</span></li>
+      <li><code>cssType</code>, <code>iSubMenuRoot</code> <span class="desc">Style selector &amp; forced submenu root.</span></li>
+    </ul>
+    <h4>cls_Messages (the <code>message</code> global)</h4>
+    <p><code>asp/includes/messages.asp</code> &mdash; collects status/error messages shown to the user.</p>
+    <ul class="member-list">
+      <li><span class="sig">add(key) / addError(key)</span> <span class="desc">Queue a message by its label key (e.g. <code>message.Add("fb_saveOK")</code>).</span></li>
+      <li><span class="sig">hasMessages() / hasErrors()</span></li>
+      <li><span class="sig">showAlert()</span> <span class="badge html">html</span> <span class="desc">Render queued messages as a popup.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====================== 6. HELPERS ====================== -->
+<section id="helpers">
+  <h2>6. Helper functions <a class="anchor" href="#helpers">#</a></h2>
+  <p>Global functions from <code>asp/includes/functions.asp</code> (and a few siblings) &mdash; all in scope
+  inside constants. These are the ones you will use constantly.</p>
+
+  <h3>Output &amp; sanitizing</h3>
+  <table>
+    <thead><tr><th>Function</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>sanitize(s)</code> / <code>quotRep(s)</code></td><td>HTML-escape <code>" &lt; &gt;</code>. Use on <b>every</b> dynamic value you output.</td></tr>
+      <tr><td><code>quotRepJS(s)</code></td><td>Escape a string for inside inline JavaScript.</td></tr>
+      <tr><td><code>Server.HTMLEncode(s)</code></td><td>Standard ASP HTML-encode (also fine for output).</td></tr>
+      <tr><td><code>removeHTML(t)</code></td><td>Strip all HTML tags &rarr; plain text.</td></tr>
+      <tr><td><code>LinkURLs(t)</code></td><td>Auto-link URLs/emails and turn newlines into <code>&lt;br&gt;</code>.</td></tr>
+      <tr><td><code>show(v)</code></td><td><code>""</code> if empty, else <code>LinkURLs(v)</code>.</td></tr>
+      <tr><td><code>splitby(v, n)</code></td><td>Insert <code>&lt;br /&gt;</code> every <code>n</code> chars.</td></tr>
+      <tr><td><code>clickEmail(addr)</code></td><td>Render a <code>mailto:</code> link.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Type conversion &amp; validation</h3>
+  <table>
+    <thead><tr><th>Function</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>isLeeg(v)</code></td><td><b>True if Null/Empty/blank.</b> The primary &ldquo;is empty&rdquo; test.</td></tr>
+      <tr><td><code>isNumeriek(v)</code></td><td>Safe <code>IsNumeric</code>.</td></tr>
+      <tr><td><code>convertGetal(v)</code></td><td>To number, <code>0</code> if invalid. Use on ids/counts/params.</td></tr>
+      <tr><td><code>convertStr(v)</code></td><td>To string, <code>""</code> if Null (error-safe).</td></tr>
+      <tr><td><code>convertBool(v)</code></td><td>To Boolean from <code>1/0/"true"/"false"</code>.</td></tr>
+      <tr><td><code>CheckEmailSyntax(s)</code></td><td>Regex email validation.</td></tr>
+      <tr><td><code>IsAlphaNumeric(s)</code></td><td>True if only <code>a-z 0-9 _ - .</code></td></tr>
+      <tr><td><code>GetFileExtension(name)</code></td><td>Extension after the last dot.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Dates</h3>
+  <table>
+    <thead><tr><th>Function</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>convertEuroDate(d)</code></td><td>Format as <code>dd/mm/yyyy</code> (locale-aware).</td></tr>
+      <tr><td><code>convertEuroDateTime(d)</code></td><td>Date + time.</td></tr>
+      <tr><td><code>formatTimeStamp(ts)</code></td><td>Date + <code>HH:MM:SS</code>.</td></tr>
+      <tr><td><code>isBetween(from, check, to)</code></td><td>True if a date is within a range (open ends allowed).</td></tr>
+      <tr><td><code>getDateWithoutSlash</code></td><td>Today as a slashless string &mdash; handy cache-key fragment.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>SQL (engine-aware &mdash; use these instead of literals)</h3>
+  <table>
+    <thead><tr><th>Function</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>cId</code></td><td>Current customer id &mdash; scope every query with it.</td></tr>
+      <tr><td><code>cleanUp(s)</code></td><td>SQL-escape single quotes (<code>'</code> &rarr; <code>''</code>) for inline string values.</td></tr>
+      <tr><td><code>getSQLBoolean(b)</code></td><td>Correct boolean literal (<code>True</code> vs <code>1</code>).</td></tr>
+      <tr><td><code>getSQLDate(d)</code> / <code>getSQLDateFunction()</code></td><td>Correct date literal / &ldquo;now&rdquo; function.</td></tr>
+      <tr><td><code>getTOPSyntax(n, sql)</code></td><td>Replace <code>[TOP]</code>/<code>[LIMIT]</code> tokens correctly per engine.</td></tr>
+      <tr><td><code>sqlCustId</code></td><td>Ready-made <code>tblPage.iCustomerID = &lt;cId&gt;</code> clause.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Composition &amp; misc</h3>
+  <table>
+    <thead><tr><th>Function</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>l("key")</code></td><td>Localized label text.</td></tr>
+      <tr><td><code>run(scriptPath)</code></td><td><code>Server.Execute</code> another ASP fragment (compose larger output).</td></tr>
+      <tr><td><code>getHomePage()</code> / <code>getContact(id)</code></td><td>Cached <code>cls_page</code> / <code>cls_contact</code> lookups.</td></tr>
+      <tr><td><code>UserIP()</code></td><td>Real client IP (honors <code>X-Forwarded-For</code>).</td></tr>
+      <tr><td><code>EnCrypt(id)</code> / <code>decrypt(s)</code></td><td><b>Obfuscate</b> page ids for URLs (<code>default.asp?iId=&hellip;</code>). Not real encryption &mdash; never use for secrets.</td></tr>
+      <tr><td><code>secCode</code> / <code>QS_secCodeHidden</code> / <code>checkCSRF</code></td><td>CSRF token plumbing for your own forms that post back.</td></tr>
+    </tbody>
+  </table>
+  <div class="warn"><b>Bug note.</b> <code>QS_iFrameYT(input)</code> assigns its result to the wrong variable in
+    the source and returns nothing useful &mdash; build the YouTube <code>&lt;iframe&gt;</code> yourself if you need it.</div>
+</section>
+
+<!-- ====================== 7. CONSTANTS ====================== -->
+<section id="constants">
+  <h2>7. Constants <a class="anchor" href="#constants">#</a></h2>
+  <p>Global <code>const</code> values from <code>asp/includes/constants.asp</code> (and a few from
+  <code>begin.asp</code>). The ones you actually reference in custom code:</p>
+
+  <h3>Content types</h3>
+  <table>
+    <thead><tr><th>Constant</th><th>Value</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>QS_textonly</code></td><td><code>0</code></td><td>Constant stores plain text.</td></tr>
+      <tr><td><code>QS_html</code></td><td><code>1</code></td><td>Constant stores HTML.</td></tr>
+      <tr><td><code>QS_VBScript</code></td><td><code>2</code></td><td>Constant is an executable script (your custom code).</td></tr>
+      <tr><td><code>QS_VBScriptIdentifier</code></td><td><code>"#!!QS_VBSCRIPT!!#"</code></td><td>Internal marker separating body from parameters.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Layout / placement</h3>
+  <table>
+    <thead><tr><th>Constant</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td><code>QS_centerAlign</code> / <code>QS_leftAlign</code> / <code>QS_rightAlign</code> / <code>QS_topAlign</code></td><td><code>"center" / "left" / "right" / "top"</code></td></tr>
+      <tr><td><code>pl_Vertical</code> / <code>pl_Horizontal</code></td><td><code>"V" / "H"</code></td></tr>
+      <tr><td><code>QS_nomenu</code></td><td><code>"nomenu"</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Environment / misc</h3>
+  <table>
+    <thead><tr><th>Constant</th><th>Value</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>C_QS_VERSION</code></td><td><code>"4.4"</code></td><td>QuickerSite version.</td></tr>
+      <tr><td><code>QS_CHARSET</code></td><td><code>"utf-8"</code></td><td>Response charset.</td></tr>
+      <tr><td><code>QS_defaultPW</code></td><td><code>"admin"</code></td><td>Default admin password (must be changed).</td></tr>
+      <tr><td><code>QS_ltr</code> / <code>QS_rtl</code></td><td><code>"ltr" / "rtl"</code></td><td>Text direction.</td></tr>
+      <tr><td><code>QS_feedNoText</code></td><td><code>10000</code></td><td>Sentinel: feed shows no body text.</td></tr>
+    </tbody>
+  </table>
+  <p>There are also many <code>btn_*</code> back-office button ids and <code>c*</code> action keys
+  (e.g. <code>cLogOff = "logoff"</code>, <code>cRegister = "register"</code>) used by <code>process.asp</code>
+  dispatch &mdash; relevant only if you build back-office or login flows.</p>
+</section>
+
+<!-- ====================== 8. EXAMPLES ====================== -->
+<section id="examples">
+  <h2>8. Custom-code examples <a class="anchor" href="#examples">#</a></h2>
+  <p>Each example shows exactly what goes in the <b>Function body</b> box of
+  <code>bs_constantEdit.asp</code> (and the <b>Parameters</b> / <b>Global Code</b> boxes when used).
+  Remember: write a <b>fragment</b>, never a full page, and never call <code>Response.End</code>.</p>
+
+  <h3 id="ex-hello">8.1 Hello world &amp; time of day <a class="anchor" href="#ex-hello">#</a></h3>
+  <p><b>Parameters:</b> <code>none</code> &mdash; invoke with <code>[GREETING]</code>. (Adapted from <code>modules/module1.asp</code>.)</p>
+  <pre><code data-lang="vbs">Dim dHour
+dHour = Hour(Now)
+
+If dHour &lt; 12 Then
+    Response.Write "Good morning!"
+ElseIf dHour &lt; 17 Then
+    Response.Write "Good afternoon!"
+Else
+    Response.Write "Good evening!"
+End If</code></pre>
+
+  <h3 id="ex-params">8.2 Using parameters <a class="anchor" href="#ex-params">#</a></h3>
+  <p><b>Parameters:</b> <code>sName</code> &mdash; invoke with <code>[HELLO("Pieter")]</code>.
+  Always coerce and sanitize parameters; they can carry user input.</p>
+  <pre><code data-lang="vbs">Dim safeName
+safeName = sanitize(convertStr(sName))
+If isLeeg(safeName) Then safeName = "stranger"
+
+Response.Write "&lt;p&gt;Hello, " &amp; safeName &amp; "!&lt;/p&gt;"</code></pre>
+  <div class="note">In <b>Test!</b> mode you will be asked for parameter values &mdash; type them
+    <b>in double quotes</b> exactly as they would appear inside the brackets, e.g. <code>"Pieter"</code>.</div>
+
+  <h3 id="ex-db">8.3 Querying the database <a class="anchor" href="#ex-db">#</a></h3>
+  <p><b>Parameters:</b> <code>iCount</code> &mdash; invoke with <code>[RECENTPAGES(5)]</code>.
+  Shows the most recent online pages of the current site. Note the defensive coding, tenant scoping,
+  engine-aware helpers, and cleanup.</p>
+  <pre><code data-lang="vbs">Dim n, sql, rs, html
+n = convertGetal(iCount)
+If n &lt;= 0 Then n = 5
+
+' [TOP] is rewritten by getTOPSyntax to the right syntax per DB engine
+sql = "select [TOP] iId, sTitle from tblPage " &amp; _
+      "where iCustomerID=" &amp; cId &amp; " " &amp; _
+      "and bOnline=" &amp; getSQLBoolean(true) &amp; " " &amp; _
+      "and bDeleted=" &amp; getSQLBoolean(false) &amp; " " &amp; _
+      "order by createdTS desc"
+sql = getTOPSyntax(n, sql)
+
+html = ""
+Set rs = db.Execute(sql)
+Do While not rs.EOF
+    html = html &amp; "&lt;li&gt;&lt;a href=""default.asp?iId=" &amp; EnCrypt(rs("iId")) &amp; """&gt;" &amp; _
+           sanitize(rs("sTitle")) &amp; "&lt;/a&gt;&lt;/li&gt;"
+    rs.MoveNext
+Loop
+rs.Close : Set rs = Nothing
+
+If html &lt;&gt; "" Then Response.Write "&lt;ul&gt;" &amp; html &amp; "&lt;/ul&gt;"</code></pre>
+  <div class="warn"><b>SQL injection.</b> If a parameter is a string used in a <code>WHERE</code> clause,
+    wrap it: <code>"... and sCode='" &amp; cleanUp(convertStr(sCode)) &amp; "'"</code>. For numbers, run them
+    through <code>convertGetal()</code> first. Never paste raw <code>Request</code>/parameter text into SQL.</div>
+
+  <h3 id="ex-page">8.4 Working with page objects <a class="anchor" href="#ex-page">#</a></h3>
+  <p><b>Parameters:</b> <code>none</code> &mdash; invoke with <code>[CHILDLINKS]</code> on any page that has
+  sub-pages. Builds a menu of the current page&rsquo;s online children using the in-scope
+  <code>selectedPage</code> object.</p>
+  <pre><code data-lang="vbs">Dim kids, k, html
+Set kids = selectedPage.subPages(true)   ' true = online only
+
+html = ""
+For Each k In kids
+    html = html &amp; "&lt;li&gt;" &amp; kids(k).getSimpleLink &amp; "&lt;/li&gt;"
+Next
+Set kids = Nothing
+
+If html &lt;&gt; "" Then Response.Write "&lt;ul class=""childnav""&gt;" &amp; html &amp; "&lt;/ul&gt;"</code></pre>
+  <p>The same pattern works for list items via <code>selectedPage.listitems(true)</code>, or for any
+  other page by <code>Set p = new cls_page : p.Pick(id)</code>.</p>
+
+  <h3 id="ex-auth">8.5 Login-aware output <a class="anchor" href="#ex-auth">#</a></h3>
+  <p><b>Parameters:</b> <code>none</code> &mdash; invoke with <code>[ADMINONLY]</code>. Renders content only
+  for a logged-in backsite (webmaster) user. (Adapted from <code>modules/module2.asp</code>.)</p>
+  <pre><code data-lang="vbs">If Session(Application("QS_CMS_iCustomerID") &amp; "isAUTHENTICATED") = true Then
+    ' Webmaster is logged into the backsite
+    Response.Write "&lt;div class=""adminbox""&gt;Secret editor note here.&lt;/div&gt;"
+Else
+    ' Not authenticated - output nothing (or a hint)
+    ' Response.Write ""
+End If</code></pre>
+  <p>To also allow the second admin, add
+  <code>or Session(Application("QS_CMS_iCustomerID") &amp; "isAUTHENTICATEDSecondAdmin") = true</code>.</p>
+
+  <h3 id="ex-global">8.6 Global Code: reusable helpers <a class="anchor" href="#ex-global">#</a></h3>
+  <p>Put helper Functions/Classes in the <b>Global Code</b> box; they load (via <code>ExecuteGlobal</code>)
+  before the body. Keep the <b>Function body</b> focused on producing output.</p>
+  <p><b>Global Code:</b></p>
+  <pre><code data-lang="vbs">Function Euro(n)
+    ' format a number as a euro amount
+    Euro = "&euro; " &amp; FormatNumber(convertGetal(n), 2)
+End Function</code></pre>
+  <p><b>Parameters:</b> <code>iAmount</code> &mdash; <b>Function body</b> &mdash; invoke with <code>[PRICE(19.95)]</code>:</p>
+  <pre><code data-lang="vbs">Response.Write "&lt;span class=""price""&gt;" &amp; Euro(iAmount) &amp; "&lt;/span&gt;"</code></pre>
+
+  <h3 id="ex-form">8.7 A small custom form <a class="anchor" href="#ex-form">#</a></h3>
+  <p><b>Parameters:</b> <code>none</code> &mdash; invoke with <code>[NAMEFORM]</code>. A self-posting form;
+  the <code>sCode</code> hidden field tells QuickerSite which page to reload after submit.
+  (Adapted from <code>modules/module3.asp</code>.)</p>
+  <pre><code data-lang="vbs">Response.Write "&lt;form action=""default.asp"" method=""post""&gt;"
+Response.Write "&lt;input type=""hidden"" name=""sCode"" value=""FORM"" /&gt;"
+Response.Write "Your name: &lt;input type=""text"" name=""field"" value=""" &amp; _
+    sanitize(Request.Form("field")) &amp; """ /&gt; "
+Response.Write "&lt;input type=""submit"" value=""Submit"" /&gt;"
+Response.Write "&lt;/form&gt;"
+
+If Request.Form("field") &lt;&gt; "" Then
+    Response.Write "&lt;p&gt;Your name is " &amp; sanitize(Request.Form("field")) &amp; ".&lt;/p&gt;"
+End If</code></pre>
+  <div class="tip">For anything beyond a toy form (validation, email, file upload, stored submissions) use a
+    managed <a href="#cls-form">cls_form</a> instead of rolling your own.</div>
+
+  <h3>Checklist before you Save</h3>
+  <ul>
+    <li>&#10003; Every variable is <code>Dim</code>&rsquo;d.</li>
+    <li>&#10003; Output is a fragment; no <code>&lt;html&gt;</code>, no <code>Response.End</code>.</li>
+    <li>&#10003; Every dynamic value passes through <code>sanitize()</code> / <code>Server.HTMLEncode</code>.</li>
+    <li>&#10003; SQL is tenant-scoped (<code>iCustomerID = cId</code>) and inputs are escaped (<code>cleanUp</code>/<code>convertGetal</code>).</li>
+    <li>&#10003; Recordsets are <code>.Close</code>d and objects <code>Set&hellip;Nothing</code>.</li>
+    <li>&#10003; It shows <b>TEST OK!</b> in the backsite tester.</li>
+  </ul>
+</section>
+
+<!-- ====================== 9. PROMPT BUILDER ====================== -->
+<section id="builder">
+  <h2>9. Prompt builder <a class="anchor" href="#builder">#</a></h2>
+  <p>Generate a compact, accurate spec for an AI coding agent (or yourself) to produce a QuickerSite-ready
+  constant. Fill the form, press <b>Build</b>, copy the result. The generated prompt embeds the engine rules
+  from chapter&nbsp;3 so the output drops straight into <code>bs_constantEdit.asp</code>.</p>
+
+  <div class="pb">
+    <!-- inputs -->
+    <div>
+      <label>Goal <small>What should the script do?</small></label>
+      <textarea id="pbGoal" placeholder="Show the 5 most recent online pages as a list."></textarea>
+
+      <label>Shortcode name <small>UPPERCASE, no spaces. Used as [NAME].</small></label>
+      <input type="text" id="pbName" placeholder="RECENTPAGES" />
+
+      <label class="chk"><input type="checkbox" id="pbParams" /> Takes parameters</label>
+      <div id="pbParamBox" style="display:none">
+        <label>Parameter list <small>VBScript arg list, e.g. iCount, sCategory</small></label>
+        <input type="text" id="pbSig" placeholder="iCount" />
+        <label>Parameter notes <small>types / defaults / ranges</small></label>
+        <textarea id="pbNotes" placeholder="iCount = max items (integer, default 5)"></textarea>
+      </div>
+
+      <label>Capabilities <small>Pick only what is needed.</small></label>
+      <div class="pills" id="pbCaps">
+        <span class="pill" data-c="db">Database</span>
+        <span class="pill" data-c="auth">Login check</span>
+        <span class="pill" data-c="customer">customer</span>
+        <span class="pill" data-c="page">selectedPage</span>
+        <span class="pill" data-c="request">Request input</span>
+        <span class="pill" data-c="session">Session</span>
+        <span class="pill" data-c="application">Application cache</span>
+        <span class="pill" data-c="fso">FileSystem</span>
+        <span class="pill" data-c="http">Outbound HTTP</span>
+        <span class="pill" data-c="constants">Nested shortcodes</span>
+      </div>
+
+      <label>DB schema <small>(if Database) tables/fields in play</small></label>
+      <textarea id="pbSchema" placeholder="tblPage: iId, sTitle, iCustomerID, bOnline, createdTS"></textarea>
+
+      <label>Output type</label>
+      <select id="pbOut">
+        <option value="html">HTML fragment</option>
+        <option value="text">Plain text</option>
+        <option value="json">JSON (AJAX)</option>
+        <option value="none">No visible output</option>
+      </select>
+
+      <label>Extra requirements</label>
+      <textarea id="pbExtra" placeholder="Cache in Application for 10 minutes. Newest first."></textarea>
+
+      <div class="btnrow">
+        <button class="b b-primary" id="pbBuild" type="button">Build</button>
+        <button class="b b-ghost" id="pbExample" type="button">Load example</button>
+      </div>
+    </div>
+
+    <!-- output -->
+    <div class="pb-out">
+      <div class="btnrow"><button class="b b-ok" id="pbCopy" type="button">Copy prompt</button></div>
+      <pre><code data-lang="none" id="pbResult">Press &ldquo;Build&rdquo; to generate the prompt.</code></pre>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  QuickerSite Developer Guidelines &mdash; generated from source in <code>asp/includes/</code>.
+  References use <code>file:line</code> against this repository. Tip: press <span class="kbd">copy</span> on any
+  code block, and use the sidebar to jump between sections.
+</div>
+
+    </div><!-- /.content -->
+  </main>
+</div><!-- /.layout -->
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
