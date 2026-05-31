@@ -178,6 +178,7 @@
 
   var RULES =
     "QUICKERSITE CUSTOM SCRIPT - RULES (do not violate):\n" +
+	"- Use the simplest possible implementation that satisfies the goal. Do not create helper functions, classes, database queries, or error handling beyond what is reasonably required." +
     "- The code is stored as a constant of type QS_VBScript and is invoked in page text as [NAME] or [NAME(args)].\n" +
     "- QuickerSite wraps your code as:  function CustomFunction(<params>) ... end function  and returns its value.\n" +
     "- It also rewrites every `Response.Write x` in the body to `CustomFunction = CustomFunction & x`.\n" +
