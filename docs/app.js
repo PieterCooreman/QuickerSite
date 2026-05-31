@@ -158,6 +158,24 @@
     $("pbParamBox").style.display = this.checked ? "" : "none";
   });
 
+  var DOCS_URL = "https://pietercooreman.github.io/QuickerSite/";
+
+  // Reference block depends on whether the target agent can browse the web.
+  function referenceBlock(canBrowse) {
+    if (canBrowse) {
+      return "REFERENCE (your agent can browse the web):\n" +
+        "- Full QuickerSite developer guidelines, class reference, helper functions and the COMPLETE\n" +
+        "  database/data model are published at: " + DOCS_URL + "\n" +
+        "- If you need exact table columns, class signatures or more examples than this prompt provides,\n" +
+        "  FETCH that URL (chapter 8 = database overview, chapter 5 = classes). Do not guess schema.";
+    }
+    return "REFERENCE (offline / no web access assumed):\n" +
+      "- Do NOT fetch any URL and do NOT rely on memory of QuickerSite internals.\n" +
+      "- Use ONLY the facts in this prompt. If a table/column or class member you need is NOT listed below,\n" +
+      "  STOP and ask for it (or state the assumption explicitly) instead of inventing it.\n" +
+      "- Full docs (to copy schema/classes from) live at: " + DOCS_URL + " (chapter 8 = database).";
+  }
+
   var RULES =
     "QUICKERSITE CUSTOM SCRIPT - RULES (do not violate):\n" +
     "- The code is stored as a constant of type QS_VBScript and is invoked in page text as [NAME] or [NAME(args)].\n" +
@@ -186,6 +204,9 @@
     constants: "May embed other QuickerSite shortcodes; they resolve recursively."
   };
 
+  // crude heuristic: does the goal sound like it needs the database?
+  var DB_HINT = /\b(shop|product|catalog|cart|order|list|news|article|post|member|contact|form|submission|booking|event|poll|gallery|feed|search|filter|recent|latest|count|database|table|query|store|inventory)\b/i;
+
   function build() {
     var goal = ($("pbGoal").value || "").trim();
     var name = ($("pbName").value || "").trim().toUpperCase().replace(/[\[\]\s]/g, "");
@@ -195,9 +216,16 @@
     var schema = ($("pbSchema").value || "").trim();
     var out = $("pbOut").value;
     var extra = ($("pbExtra").value || "").trim();
+    var canBrowse = (document.querySelector("input[name=pbAgent]:checked") || {}).value === "online";
+
+    var capLines = [];
+    Object.keys(CAPTXT).forEach(function (k) { if (caps[k]) capLines.push("- " + CAPTXT[k]); });
+    var noCaps = capLines.length === 0;
 
     var L = [];
     L.push("You are writing a custom ASP/VBScript snippet for the QuickerSite CMS.");
+    L.push("");
+    L.push(referenceBlock(canBrowse));
     L.push("");
     L.push(RULES);
     L.push("");
@@ -217,34 +245,68 @@
           "an HTML fragment to embed in a page";
     L.push("Output: " + outTxt + ".");
 
-    var capLines = [];
-    Object.keys(CAPTXT).forEach(function (k) { if (caps[k]) capLines.push("- " + CAPTXT[k]); });
     L.push("");
     L.push("ALLOWED CAPABILITIES");
-    L.push(capLines.length ? capLines.join("\n") : "- Plain string building only (no DB / IO).");
+    if (noCaps) {
+      // FIX (issue #1): never assert "no DB/IO" as a hard rule, because it can
+      // contradict the Goal (e.g. "add a shop"). Instead let the model use the
+      // minimum it needs, and warn when the goal looks data-driven.
+      L.push("- Use the MINIMUM capabilities the Goal requires. Prefer pure string building, but you MAY");
+      L.push("  read the database (db.Execute), customer and selectedPage if the Goal cannot be met otherwise.");
+      L.push("- When you use the database, follow the SQL rules above (escape input, scope by iCustomerID = cId).");
+      if (goal && DB_HINT.test(goal)) {
+        L.push("- NOTE: this Goal looks data-driven. Do NOT hardcode fake/sample data to avoid the database;");
+        L.push("  query the real QuickerSite tables instead. If you lack the exact schema, ask for it / state assumptions.");
+      }
+    } else {
+      L.push(capLines.join("\n"));
+    }
 
-    if (caps.db && schema) {
+    // Schema: include whenever provided (not only when the db pill is on),
+    // since with no caps selected the model may still need it.
+    if (schema) {
+      L.push("");
+      L.push("DATABASE SCHEMA (authoritative - use these names exactly; do not invent others)");
+      L.push(schema.split("\n").map(function (x) { return "- " + x; }).join("\n"));
+    } else if (!canBrowse && (caps.db || (noCaps && goal && DB_HINT.test(goal)))) {
+      // FIX (issue #2): offline agent + likely-DB task + no schema pasted.
       L.push("");
       L.push("DATABASE SCHEMA");
-      L.push(schema.split("\n").map(function (x) { return "- " + x; }).join("\n"));
+      L.push("- (none provided). You are offline, so do NOT guess table/column names.");
+      L.push("  Ask the user to paste the relevant tables from chapter 8 of " + DOCS_URL + ",");
+      L.push("  or state clearly which columns you are assuming.");
     }
+
     if (extra) {
       L.push("");
       L.push("EXTRA REQUIREMENTS");
       L.push(extra.split("\n").map(function (x) { return "- " + x; }).join("\n"));
     }
 
+    // FIX (issue #3): give an explicit, copy-paste-ready output template instead
+    // of an abstract 1-2-3 list, so the model does not wrap it in markdown fences.
+    var paramsExample = hasP ? (sig || "iCount") : "none";
     L.push("");
-    L.push("DELIVERABLE");
-    L.push("Return three labelled blocks ready to paste into bs_constantEdit.asp:");
-    L.push("1) Parameters  - the exact Parameters-field string (" + (hasP ? "as above" : "write `none`") + ").");
-    L.push("2) Function body - the VBScript for the main code box. Do NOT include the function/end function");
-    L.push("   wrapper or <% %> tags; QuickerSite adds them.");
-    L.push("3) Global Code - helper Functions/Classes, or `none`.");
-    L.push("Then give a one-line test note (paste into bs_constantEdit.asp, click Test!" +
-      (hasP ? ", supply sample args in double quotes" : "") + ", confirm \"TEST OK!\", Save, insert [" +
-      (name || "NAME") + (hasP ? "(...)" : "") + "]).");
-    L.push("State any assumptions; do not invent DB columns or helpers that were not given.");
+    L.push("OUTPUT FORMAT (reply with EXACTLY this layout - plain text, NO markdown code fences):");
+    L.push("");
+    L.push("===== PARAMETERS =====");
+    L.push(paramsExample);
+    L.push("");
+    L.push("===== FUNCTION BODY =====");
+    L.push("<the VBScript for the main code box.");
+    L.push(" Do NOT include the function CustomFunction(...) / end function wrapper.");
+    L.push(" Do NOT include <% %> tags. Just the body statements.>");
+    L.push("");
+    L.push("===== GLOBAL CODE =====");
+    L.push("<helper Functions/Classes, or the single word: none>");
+    L.push("");
+    L.push("===== NOTES =====");
+    L.push("<assumptions you made, plus a one-line test instruction: paste the 3 blocks into");
+    L.push(" bs_constantEdit.asp, click Test!" + (hasP ? ", supply sample args in double quotes" : "") +
+      ", confirm \"TEST OK!\", Save, then insert [" + (name || "NAME") + (hasP ? "(...)" : "") + "] in a page.>");
+    L.push("");
+    L.push("Rules for the output: keep the five ===== headers exactly as shown; put real content");
+    L.push("between them; do not add any text before the first header or after the last block.");
 
     $("pbResult").textContent = L.join("\n");
   }
@@ -266,6 +328,8 @@
     });
     $("pbOut").value = "html";
     $("pbExtra").value = "Use selectedPage.listitems(true). Output nothing if there are no items.";
+    var offline = document.querySelector("input[name=pbAgent][value=offline]");
+    if (offline) offline.checked = true;
     build();
   });
 })();

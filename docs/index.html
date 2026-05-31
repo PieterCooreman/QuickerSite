@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -40,8 +40,15 @@
       <a href="#helpers">6. Helper functions</a>
       <a href="#constants">7. Constants</a>
 
+      <div class="grp">Data model</div>
+      <a href="#database">8. Database overview</a>
+      <a href="#db-conventions" class="sub">Conventions &amp; types</a>
+      <a href="#db-areas" class="sub">Tables by area</a>
+      <a href="#db-rels" class="sub">Key relationships</a>
+      <a href="#db-all" class="sub">All tables &amp; columns</a>
+
       <div class="grp">Custom code</div>
-      <a href="#examples">8. Custom-code examples</a>
+      <a href="#examples">9. Custom-code examples</a>
       <a href="#ex-hello" class="sub">Hello / time of day</a>
       <a href="#ex-params" class="sub">Parameters</a>
       <a href="#ex-db" class="sub">Database query</a>
@@ -49,7 +56,7 @@
       <a href="#ex-auth" class="sub">Login-aware</a>
       <a href="#ex-global" class="sub">Global code helpers</a>
       <a href="#ex-form" class="sub">Custom form</a>
-      <a href="#builder">9. Prompt builder</a>
+      <a href="#builder">10. Prompt builder</a>
     </nav>
   </aside>
 
@@ -609,9 +616,1019 @@ Set obj = Nothing           ' 7. release</code></pre>
   dispatch &mdash; relevant only if you build back-office or login flows.</p>
 </section>
 
-<!-- ====================== 8. EXAMPLES ====================== -->
+<!-- ====================== 8. DATABASE ====================== -->
+<section id="database">
+  <h2>8. Database overview <a class="anchor" href="#database">#</a></h2>
+  <p>QuickerSite ships with <b>54 tables</b> (627 columns). The default install uses an Access
+  (Jet) database; the same schema runs on SQL&nbsp;Server and MySQL via <code>cls_database</code>.
+  The full schema is created by the bootstrap DDL (<code>CREATE TABLE</code> / <code>ALTER TABLE ... ADD COLUMN</code>).
+  This chapter is the map you need when writing custom <code>db.Execute</code> queries.</p>
+
+  <div class="tip"><b>Reading this with an AI agent?</b> The live, fetchable copy of these docs (including this
+  data model) is at <a href="https://pietercooreman.github.io/QuickerSite/">pietercooreman.github.io/QuickerSite/</a>.
+  The prompt builder (chapter&nbsp;10) embeds that URL so an agent can pull the exact column list on demand.</div>
+
+  <h3 id="db-conventions">Conventions</h3>
+  <ul>
+    <li><b>Primary key:</b> every table has an autonumber <code>iId</code> (<code>COUNTER</code>) primary key.</li>
+    <li><b>Tenant scoping:</b> most tables carry <code>iCustomerID</code> &mdash; <b>always filter by <code>= cId</code></b>.
+      Link/child tables (values, subscriptions, page-rights) scope through their parent instead.</li>
+    <li><b>Naming:</b> column prefixes encode type &mdash; <code>i</code>&nbsp;integer/id, <code>s</code>&nbsp;string,
+      <code>b</code>&nbsp;boolean, <code>d</code>&nbsp;date. Foreign keys read <code>i&lt;Entity&gt;ID</code>
+      (e.g. <code>iCatalogID</code>, <code>iFormID</code>, <code>iContactID</code>).</li>
+    <li><b>No enforced FKs:</b> relationships are by convention only (Access/Jet) &mdash; joins are written in SQL,
+      integrity is maintained in the VBScript classes.</li>
+  </ul>
+
+  <h3>Access type &rarr; meaning</h3>
+  <table>
+    <thead><tr><th>DDL type</th><th>Shown as</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>COUNTER NOT NULL</code></td><td>PK</td><td>Autonumber primary key (<code>iId</code>).</td></tr>
+      <tr><td><code>LONG</code> / <code>INTEGER</code></td><td>Integer</td><td>Whole number; ids, counts, flags-as-int.</td></tr>
+      <tr><td><code>BIT</code></td><td>Boolean</td><td>True/False. Compare with <code>getSQLBoolean(true)</code>.</td></tr>
+      <tr><td><code>DATETIME</code></td><td>Date/time</td><td>Use <code>getSQLDate(d)</code> in queries.</td></tr>
+      <tr><td><code>TEXT(255)</code></td><td>Text(255)</td><td>Short string (max 255 chars).</td></tr>
+      <tr><td><code>MEMO</code></td><td>Long text</td><td>Unbounded text (HTML bodies, templates, notes).</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="db-areas">Tables by area</h3>
+  <p>Click a table name to jump to its column list below. &ldquo;Tenant&rdquo; = has an <code>iCustomerID</code> column.</p>
+  <table class="dboverview">
+    <thead><tr><th>Table</th><th>Cols</th><th>Tenant</th><th>Role</th></tr></thead>
+    <tbody><tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Core</td></tr>
+<tr><td><a href="#db-tblconstant"><code>tblConstant</code></a></td><td>9</td><td>&mdash;</td><td>Constants: text, HTML and your custom VBScript snippets (iType 0/1/2).</td></tr>
+<tr><td><a href="#db-tblcustomer"><code>tblCustomer</code></a></td><td>20</td><td>&mdash;</td><td>The site/tenant and all its settings (the customer object).</td></tr>
+<tr><td><a href="#db-tblmodule"><code>tblModule</code></a></td><td>6</td><td>&mdash;</td><td>Registered custom modules (with optional password).</td></tr>
+<tr><td><a href="#db-tblpage"><code>tblPage</code></a></td><td>73</td><td>&mdash;</td><td>Pages, list pages, list items, menu nodes, external links, homepage.</td></tr>
+<tr><td><a href="#db-tblpagecomment"><code>tblPageComment</code></a></td><td>8</td><td>&mdash;</td><td>Visitor comments on a page.</td></tr>
+<tr><td><a href="#db-tblsecondadmin"><code>tblSecondAdmin</code></a></td><td>3</td><td>&mdash;</td><td>Second-admin account + per-feature permission flags.</td></tr>
+<tr><td><a href="#db-tbltemplate"><code>tblTemplate</code></a></td><td>10</td><td>&mdash;</td><td>Page templates (web / print / email / mobile / WAP variants).</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Members</td></tr>
+<tr><td><a href="#db-tblcontact"><code>tblContact</code></a></td><td>13</td><td>&mdash;</td><td>Site members / intranet users (login, status, avatar).</td></tr>
+<tr><td><a href="#db-tblcontactfield"><code>tblContactField</code></a></td><td>9</td><td>&mdash;</td><td>Profile field definitions for contacts.</td></tr>
+<tr><td><a href="#db-tblcontactpage"><code>tblContactPage</code></a></td><td>4</td><td>&mdash;</td><td>Per-page access rights for a contact (title/body/list).</td></tr>
+<tr><td><a href="#db-tblcontactregistration"><code>tblContactRegistration</code></a></td><td>6</td><td>&mdash;</td><td>Pending registrations / activation tickets.</td></tr>
+<tr><td><a href="#db-tblcontactvalues"><code>tblContactValues</code></a></td><td>3</td><td>&mdash;</td><td>Per-contact profile field values.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Catalog</td></tr>
+<tr><td><a href="#db-tbcatalogitemfields"><code>tbCatalogItemFields</code></a></td><td>3</td><td>&mdash;</td><td>Per-item field values (note: table name is tb*, not tbl*).</td></tr>
+<tr><td><a href="#db-tblcatalog"><code>tblCatalog</code></a></td><td>24</td><td>&mdash;</td><td>Catalog definition (products/data sets).</td></tr>
+<tr><td><a href="#db-tblcatalogfield"><code>tblCatalogField</code></a></td><td>9</td><td>&mdash;</td><td>Field definitions for a catalog.</td></tr>
+<tr><td><a href="#db-tblcatalogfiletype"><code>tblCatalogFileType</code></a></td><td>3</td><td>&mdash;</td><td>File-type categories for catalog item files.</td></tr>
+<tr><td><a href="#db-tblcatalogitem"><code>tblCatalogItem</code></a></td><td>10</td><td>&mdash;</td><td>A catalog item (row).</td></tr>
+<tr><td><a href="#db-tblcatalogitemfiles"><code>tblCatalogItemFiles</code></a></td><td>7</td><td>&mdash;</td><td>Files attached to a catalog item.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Forms</td></tr>
+<tr><td><a href="#db-tblform"><code>tblForm</code></a></td><td>27</td><td>&mdash;</td><td>Form definition (email, autoresponder, redirect, hooks).</td></tr>
+<tr><td><a href="#db-tblformfield"><code>tblFormField</code></a></td><td>19</td><td>&mdash;</td><td>Fields belonging to a form.</td></tr>
+<tr><td><a href="#db-tblformfieldvalue"><code>tblFormFieldValue</code></a></td><td>4</td><td>&mdash;</td><td>Field values for a submission.</td></tr>
+<tr><td><a href="#db-tblformsubmission"><code>tblFormSubmission</code></a></td><td>6</td><td>&mdash;</td><td>A stored form submission.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Widgets</td></tr>
+<tr><td><a href="#db-tblcloud"><code>tblCloud</code></a></td><td>6</td><td>&mdash;</td><td>Tag-cloud definition.</td></tr>
+<tr><td><a href="#db-tblfeed"><code>tblFeed</code></a></td><td>27</td><td>&mdash;</td><td>RSS/ATOM feed widget definition.</td></tr>
+<tr><td><a href="#db-tblgallery"><code>tblGallery</code></a></td><td>38</td><td>&mdash;</td><td>Image gallery widget definition.</td></tr>
+<tr><td><a href="#db-tblguestbook"><code>tblGuestBook</code></a></td><td>17</td><td>&mdash;</td><td>Guestbook definition (templates, validation).</td></tr>
+<tr><td><a href="#db-tblguestbookitem"><code>tblGuestBookItem</code></a></td><td>10</td><td>&mdash;</td><td>Guestbook entries and replies.</td></tr>
+<tr><td><a href="#db-tblpoll"><code>tblPoll</code></a></td><td>13</td><td>&mdash;</td><td>Poll definition (question + up to 15 answers sA1..sA15).</td></tr>
+<tr><td><a href="#db-tblpollvote"><code>tblPollVote</code></a></td><td>5</td><td>&mdash;</td><td>Individual poll votes.</td></tr>
+<tr><td><a href="#db-tblpopup"><code>tblPopup</code></a></td><td>15</td><td>&mdash;</td><td>Popup / lightbox definition.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Forum</td></tr>
+<tr><td><a href="#db-tblpost"><code>tblPost</code></a></td><td>14</td><td>&mdash;</td><td>Forum posts: topics and replies (iPostID links a reply).</td></tr>
+<tr><td><a href="#db-tbltheme"><code>tblTheme</code></a></td><td>32</td><td>&mdash;</td><td>Forum/theme definition (subscriptions, notifications).</td></tr>
+<tr><td><a href="#db-tblthemesubscription"><code>tblThemeSubscription</code></a></td><td>2</td><td>&mdash;</td><td>Contact subscriptions to a theme.</td></tr>
+<tr><td><a href="#db-tblthemetopicsubscription"><code>tblThemeTopicSubscription</code></a></td><td>2</td><td>&mdash;</td><td>Contact subscriptions to a single topic.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Newsletter</td></tr>
+<tr><td><a href="#db-tblnewsletter"><code>tblNewsletter</code></a></td><td>11</td><td>&mdash;</td><td>Newsletter (email) definition.</td></tr>
+<tr><td><a href="#db-tblnewslettercategory"><code>tblNewsletterCategory</code></a></td><td>10</td><td>&mdash;</td><td>Subscriber categories / signup forms.</td></tr>
+<tr><td><a href="#db-tblnewslettercategorysubscriber"><code>tblNewsletterCategorySubscriber</code></a></td><td>8</td><td>&mdash;</td><td>Category subscribers.</td></tr>
+<tr><td><a href="#db-tblnewsletterlog"><code>tblNewsletterLog</code></a></td><td>6</td><td>&mdash;</td><td>Per-subscriber send/read log.</td></tr>
+<tr><td><a href="#db-tblnewslettermailing"><code>tblNewsletterMailing</code></a></td><td>7</td><td>&mdash;</td><td>A scheduled/sent mailing of a newsletter.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Mail</td></tr>
+<tr><td><a href="#db-tblcustomerintranetmessage"><code>tblCustomerIntranetMessage</code></a></td><td>5</td><td>&mdash;</td><td>Per-status intranet messages to members.</td></tr>
+<tr><td><a href="#db-tblmail"><code>tblMail</code></a></td><td>7</td><td>&mdash;</td><td>Sent mass-mail records.</td></tr>
+<tr><td><a href="#db-tblmailcontact"><code>tblMailContact</code></a></td><td>2</td><td>&mdash;</td><td>Recipients of a mass mail.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Calendar</td></tr>
+<tr><td><a href="#db-tblcalendar"><code>tblCalendar</code></a></td><td>8</td><td>&mdash;</td><td>Availability/booking calendar definition.</td></tr>
+<tr><td><a href="#db-tblcalendarbooking"><code>tblCalendarBooking</code></a></td><td>14</td><td>&mdash;</td><td>A booking against a calendar.</td></tr>
+<tr><td><a href="#db-tblevent"><code>tblEvent</code></a></td><td>16</td><td>&mdash;</td><td>Calendar events.</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Shop</td></tr>
+<tr><td><a href="#db-tblqshopcategory"><code>tblQShopCategory</code></a></td><td>7</td><td>&mdash;</td><td>Shop product category (self-nesting).</td></tr>
+<tr><td><a href="#db-tblqshopmake"><code>tblQShopMake</code></a></td><td>7</td><td>&mdash;</td><td>Shop product brand/make.</td></tr>
+<tr><td><a href="#db-tblqshopprodcat"><code>tblQShopProdCat</code></a></td><td>2</td><td>&mdash;</td><td>Product-to-category link table.</td></tr>
+<tr><td><a href="#db-tblqshopproduct"><code>tblQShopProduct</code></a></td><td>13</td><td>&mdash;</td><td>Shop product (price, stock, images).</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Stats</td></tr>
+<tr><td><a href="#db-tblmonitor"><code>tblMonitor</code></a></td><td>4</td><td>&mdash;</td><td>Raw visitor-detail monitor log.</td></tr>
+<tr><td><a href="#db-tblsession"><code>tblSession</code></a></td><td>8</td><td>&mdash;</td><td>Visitor session log (browser, referer, IP, start page).</td></tr>
+<tr><td colspan="4" style="background:rgba(77,163,255,.06);font-weight:600;color:var(--accent)">Admin</td></tr>
+<tr><td><a href="#db-tblclient"><code>tblClient</code></a></td><td>8</td><td>&mdash;</td><td>CRM client records (multi-site admin).</td></tr>
+<tr><td><a href="#db-tblclientproduct"><code>tblClientProduct</code></a></td><td>13</td><td>&mdash;</td><td>Products/services billed to a client.</td></tr>
+<tr><td><a href="#db-tblpackage"><code>tblPackage</code></a></td><td>14</td><td>&mdash;</td><td>Site package / provisioning template.</td></tr>
+
+    </tbody>
+  </table>
+
+  <div class="warn"><b>Watch-outs.</b>
+    <code>tbCatalogItemFields</code> is spelled <code>tb</code> (not <code>tbl</code>).
+    A few date columns are stored as text (e.g. <code>tblContactRegistration.dCreatedTS</code> is <code>TEXT</code>).
+    <code>tblPage</code> uses <code>createdTS</code>/<code>updatedTS</code> (no <code>d</code> prefix) alongside <code>dUpdatedOn</code>.
+    <code>tblPoll</code> stores answers as <code>sA1..sA15</code> with matching colour columns <code>sA1c..sA15c</code>.</div>
+
+  <h3 id="db-rels">Key relationships</h3>
+  <pre><code data-lang="none">tblCustomer (iId) ──&lt; tblPage (iCustomerID)
+tblPage (iId) ──&lt; tblPage (iParentid)        ' menu tree
+tblPage (iId) ──&lt; tblPage (iListPageId)      ' list items
+tblPage.iCatalogId  ─&gt; tblCatalog (iId)
+tblPage.iFormId     ─&gt; tblForm (iId)
+tblPage.iFeedId     ─&gt; tblFeed (iId)
+tblPage.iTemplateID ─&gt; tblTemplate (iId)
+
+tblCatalog (iId) ──&lt; tblCatalogField (iCatalogId)
+tblCatalog (iId) ──&lt; tblCatalogItem (iCatalogID) ──&lt; tbCatalogItemFields (iItemID)
+                                                  └──&lt; tblCatalogItemFiles (iItemID)
+
+tblForm (iId) ──&lt; tblFormField (iFormID)
+tblForm (iId) ──&lt; tblFormSubmission (iFormID) ──&lt; tblFormFieldValue (iSubmissionID)
+
+tblContact (iId) ──&lt; tblContactValues (iContactId)   ' profile field values
+tblContact (iId) ──&lt; tblContactPage (iContactID)     ' per-page access rights
+tblContactField (iId) ─&gt; tblContactValues (iFieldId)
+
+tblTheme (iId) ──&lt; tblPost (iThemeID)
+tblPost (iId)  ──&lt; tblPost (iPostID)         ' replies link to their topic
+
+tblNewsletter (iId) ──&lt; tblNewsletterMailing (iNewsletterID)
+tblNewsletterCategory (iId) ──&lt; tblNewsletterCategorySubscriber (iCategoryID)</code></pre>
+
+  <h3>Example: a tenant-safe join</h3>
+  <pre><code data-lang="vbs">Dim sql, rs
+sql = "select i.sTitle, c.sName as catalog " &amp; _
+      "from tblCatalogItem i " &amp; _
+      "inner join tblCatalog c on i.iCatalogID = c.iId " &amp; _
+      "where c.iCustomerID = " &amp; cId &amp; " " &amp; _
+      "and i.dOnlineFrom &lt;= " &amp; getSQLDate(Date) &amp; " " &amp; _
+      "order by i.dCreatedTS desc"
+Set rs = db.Execute(sql)
+Do While not rs.EOF
+    Response.Write "&lt;li&gt;" &amp; sanitize(rs("sTitle")) &amp; "&lt;/li&gt;"
+    rs.MoveNext
+Loop
+rs.Close : Set rs = Nothing</code></pre>
+
+  <h3 id="db-all">All tables &amp; columns</h3>
+  <p>Alphabetical. Expand a table to see its columns and types.</p>
+  <div class="btnrow">
+    <button class="b b-ghost" type="button" onclick="document.querySelectorAll('.dbtable').forEach(function(d){d.open=true})">Expand all</button>
+    <button class="b b-ghost" type="button" onclick="document.querySelectorAll('.dbtable').forEach(function(d){d.open=false})">Collapse all</button>
+  </div><details id="db-tbcatalogitemfields" class="dbtable">
+<summary><code>tbCatalogItemFields</code> <span class="tag">3 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iFieldId</code></td><td>Integer</td></tr>
+<tr><td><code>iItemID</code></td><td>Integer</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcalendar" class="dbtable">
+<summary><code>tblCalendar</code> <span class="tag">8 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iContactID</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sBGColor</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFontFamily</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTemplate</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcalendarbooking" class="dbtable">
+<summary><code>tblCalendarBooking</code> <span class="tag">14 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bEOnlyMorning</code></td><td>Boolean</td></tr>
+<tr><td><code>bSOnlyAfternoon</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dEndDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dStartDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCalendarID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iStatus</code></td><td>Integer</td></tr>
+<tr><td><code>sEMail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNotes</code></td><td>Long text</td></tr>
+<tr><td><code>sPhone</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUniqueKey</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblcatalog" class="dbtable">
+<summary><code>tblCatalog</code> <span class="tag">24 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bAutoThumb</code></td><td>Boolean</td></tr>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>bPushRSS</code></td><td>Boolean</td></tr>
+<tr><td><code>bSearchable</code></td><td>Boolean</td></tr>
+<tr><td><code>bUseShadow</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iAutoClose</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr><td><code>iFormID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iMaxThumbSize</code></td><td>Integer</td></tr>
+<tr><td><code>iPageSize</code></td><td>Integer</td></tr>
+<tr><td><code>sFilePath</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFormTitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFullImage</code></td><td>Text(255)</td></tr>
+<tr><td><code>sItemName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sItemView</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sOrderItemsBy</code></td><td>Text(255)</td></tr>
+<tr><td><code>sResizePicTo</code></td><td>Integer</td></tr>
+<tr><td><code>sRSSView1</code></td><td>Long text</td></tr>
+<tr><td><code>sRSSView2</code></td><td>Long text</td></tr>
+<tr><td><code>sRSSView3</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcatalogfield" class="dbtable">
+<summary><code>tblCatalogField</code> <span class="tag">9 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bMandatory</code></td><td>Boolean</td></tr>
+<tr><td><code>bPublic</code></td><td>Boolean</td></tr>
+<tr><td><code>bSearchField</code></td><td>Boolean</td></tr>
+<tr><td><code>iCatalogId</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iRang</code></td><td>Integer</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sType</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValues</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcatalogfiletype" class="dbtable">
+<summary><code>tblCatalogFileType</code> <span class="tag">3 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iCatalogID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblcatalogitem" class="dbtable">
+<summary><code>tblCatalogItem</code> <span class="tag">10 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bForm</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineFrom</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineUntill</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCatalogID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sPicExt</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTitle</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblcatalogitemfiles" class="dbtable">
+<summary><code>tblCatalogItemFiles</code> <span class="tag">7 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iFileTypeId</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iItemID</code></td><td>Integer</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTitle</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblclient" class="dbtable">
+<summary><code>tblClient</code> <span class="tag">8 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sAddress</code></td><td>Long text</td></tr>
+<tr><td><code>sContactPerson</code></td><td>Text(255)</td></tr>
+<tr><td><code>sMainEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sOtherEmail</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblclientproduct" class="dbtable">
+<summary><code>tblClientProduct</code> <span class="tag">13 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dEndService</code></td><td>Date/time</td></tr>
+<tr><td><code>dLastRenewalDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dStartService</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iClientID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iPrice</code></td><td>Integer</td></tr>
+<tr><td><code>iRenewal</code></td><td>Integer</td></tr>
+<tr><td><code>iVat</code></td><td>Integer</td></tr>
+<tr><td><code>sInvoiceNr</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNotes</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcloud" class="dbtable">
+<summary><code>tblCloud</code> <span class="tag">6 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iResetDays</code></td><td>Integer</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sKeywords</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblconstant" class="dbtable">
+<summary><code>tblConstant</code> <span class="tag">9 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dOnlineFrom</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineUntill</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerId</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iType</code></td><td>Integer</td></tr>
+<tr><td><code>sConstant</code></td><td>Text(255)</td></tr>
+<tr><td><code>sGlobal</code></td><td>Long text</td></tr>
+<tr><td><code>sParameters</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcontact" class="dbtable">
+<summary><code>tblContact</code> <span class="tag">13 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bGetEmailsFromSite</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dLastLoginTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dLogoutTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iStatus</code></td><td>Integer</td></tr>
+<tr><td><code>sAvatar</code></td><td>Text(255)</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNickName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sOrigEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPw</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblcontactfield" class="dbtable">
+<summary><code>tblContactField</code> <span class="tag">9 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bMandatory</code></td><td>Boolean</td></tr>
+<tr><td><code>bProfile</code></td><td>Boolean</td></tr>
+<tr><td><code>bSearchField</code></td><td>Boolean</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iRang</code></td><td>Integer</td></tr>
+<tr><td><code>sFieldName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sType</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValues</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcontactpage" class="dbtable">
+<summary><code>tblContactPage</code> <span class="tag">4 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iBodyID</code></td><td>Integer</td></tr>
+<tr><td><code>iContactID</code></td><td>Integer</td></tr>
+<tr><td><code>iLPid</code></td><td>Integer</td></tr>
+<tr><td><code>iTitleID</code></td><td>Integer</td></tr>
+</tbody></table></details>
+<details id="db-tblcontactregistration" class="dbtable">
+<summary><code>tblContactRegistration</code> <span class="tag">6 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Text(255)</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTicket</code></td><td>Text(255)</td></tr>
+<tr><td><code>sVisitorDetails</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcontactvalues" class="dbtable">
+<summary><code>tblContactValues</code> <span class="tag">3 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iContactId</code></td><td>Integer</td></tr>
+<tr><td><code>iFieldId</code></td><td>Integer</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblcustomer" class="dbtable">
+<summary><code>tblCustomer</code> <span class="tag">20 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>adminPassword</code></td><td>Text(255)</td></tr>
+<tr><td><code>bAllowNewRegistrations</code></td><td>Boolean</td></tr>
+<tr><td><code>bApplication</code></td><td>Boolean</td></tr>
+<tr><td><code>bCatalog</code></td><td>Boolean</td></tr>
+<tr><td><code>bIntranet</code></td><td>Boolean</td></tr>
+<tr><td><code>bMonitor</code></td><td>Boolean</td></tr>
+<tr><td><code>bUserFriendlyURL</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>defaultTemplate</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>language</code></td><td>Integer</td></tr>
+<tr><td><code>sDatumFormat</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFooter</code></td><td>Long text</td></tr>
+<tr><td><code>sHeader</code></td><td>Long text</td></tr>
+<tr><td><code>siteName</code></td><td>Text(255)</td></tr>
+<tr><td><code>siteTitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sURL</code></td><td>Text(255)</td></tr>
+<tr><td><code>webmaster</code></td><td>Text(255)</td></tr>
+<tr><td><code>webmasterEmail</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblcustomerintranetmessage" class="dbtable">
+<summary><code>tblCustomerIntranetMessage</code> <span class="tag">5 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bEnabled</code></td><td>Boolean</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr><td><code>iStatus</code></td><td>Integer</td></tr>
+<tr><td><code>sBody</code></td><td>Long text</td></tr>
+<tr><td><code>sSubject</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblevent" class="dbtable">
+<summary><code>tblEvent</code> <span class="tag">16 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dEndDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dStartDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCalendarID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sColor</code></td><td>Text(255)</td></tr>
+<tr><td><code>sDescription</code></td><td>Long text</td></tr>
+<tr><td><code>sEndHour</code></td><td>Text(255)</td></tr>
+<tr><td><code>sLocation</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPrice</code></td><td>Text(255)</td></tr>
+<tr><td><code>sStarthour</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrl</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrlMap</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblfeed" class="dbtable">
+<summary><code>tblFeed</code> <span class="tag">27 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bEnableJS</code></td><td>Boolean</td></tr>
+<tr><td><code>bLinkOnTitle</code></td><td>Boolean</td></tr>
+<tr><td><code>bOpenLinkInNW</code></td><td>Boolean</td></tr>
+<tr><td><code>bRandom</code></td><td>Boolean</td></tr>
+<tr><td><code>bShowAuthor</code></td><td>Boolean</td></tr>
+<tr><td><code>bShowCategory</code></td><td>Boolean</td></tr>
+<tr><td><code>bShowDate</code></td><td>Boolean</td></tr>
+<tr><td><code>bShowTitle</code></td><td>Boolean</td></tr>
+<tr><td><code>bTemplate</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCache</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iLimitTo</code></td><td>Integer</td></tr>
+<tr><td><code>iMaxItems</code></td><td>Integer</td></tr>
+<tr><td><code>iReloadSec</code></td><td>Integer</td></tr>
+<tr><td><code>iTitleLimitTo</code></td><td>Integer</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sHTMLAfter</code></td><td>Text(255)</td></tr>
+<tr><td><code>sHTMLBefore</code></td><td>Text(255)</td></tr>
+<tr><td><code>sKeywords</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPrefixUrl</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTemplate</code></td><td>Long text</td></tr>
+<tr><td><code>sUrl</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrls</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblform" class="dbtable">
+<summary><code>tblForm</code> <span class="tag">27 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bAttachFiles</code></td><td>Boolean</td></tr>
+<tr><td><code>bAutoResponder</code></td><td>Boolean</td></tr>
+<tr><td><code>bCaptcha</code></td><td>Boolean</td></tr>
+<tr><td><code>bCookie</code></td><td>Boolean</td></tr>
+<tr><td><code>bSendEmail</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sAutoResponse</code></td><td>Long text</td></tr>
+<tr><td><code>sAutoResponseFromEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sAutoResponseFromName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sAutoResponseSubject</code></td><td>Text(255)</td></tr>
+<tr><td><code>sAutoResponseWebmaster</code></td><td>Long text</td></tr>
+<tr><td><code>sButton</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sComment</code></td><td>Long text</td></tr>
+<tr><td><code>sFeedback</code></td><td>Long text</td></tr>
+<tr><td><code>sIntro</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sQAalign</code></td><td>Text(255)</td></tr>
+<tr><td><code>sRedirect</code></td><td>Text(255)</td></tr>
+<tr><td><code>sRedirectPrefix</code></td><td>Text(255)</td></tr>
+<tr><td><code>sReset</code></td><td>Text(255)</td></tr>
+<tr><td><code>sScriptUponSubmission</code></td><td>Long text</td></tr>
+<tr><td><code>sSubject</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTo</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblformfield" class="dbtable">
+<summary><code>tblFormField</code> <span class="tag">19 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bAllowMS</code></td><td>Boolean</td></tr>
+<tr><td><code>bAutoResponder</code></td><td>Boolean</td></tr>
+<tr><td><code>bMandatory</code></td><td>Boolean</td></tr>
+<tr><td><code>bUseForSending</code></td><td>Boolean</td></tr>
+<tr><td><code>iCols</code></td><td>Integer</td></tr>
+<tr><td><code>iFormID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iMaxFileSize</code></td><td>Integer</td></tr>
+<tr><td><code>iMaxlength</code></td><td>Integer</td></tr>
+<tr><td><code>iRang</code></td><td>Integer</td></tr>
+<tr><td><code>iRows</code></td><td>Integer</td></tr>
+<tr><td><code>iSize</code></td><td>Integer</td></tr>
+<tr><td><code>sAllowedExtensions</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFileLocation</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPlaceholder</code></td><td>Text(255)</td></tr>
+<tr><td><code>sRadioPlacement</code></td><td>Text(255)</td></tr>
+<tr><td><code>sType</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValues</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblformfieldvalue" class="dbtable">
+<summary><code>tblFormFieldValue</code> <span class="tag">4 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iFormFieldId</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iSubmissionID</code></td><td>Integer</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblformsubmission" class="dbtable">
+<summary><code>tblFormSubmission</code> <span class="tag">6 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iFormID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iItemID</code></td><td>Integer</td></tr>
+<tr><td><code>sVisitorDetails</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblgallery" class="dbtable">
+<summary><code>tblGallery</code> <span class="tag">38 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bAutoStartSS</code></td><td>Boolean</td></tr>
+<tr><td><code>bFSR</code></td><td>Boolean</td></tr>
+<tr><td><code>bNSControlNav</code></td><td>Boolean</td></tr>
+<tr><td><code>bNSdirectionNav</code></td><td>Boolean</td></tr>
+<tr><td><code>bOpenInNewWindow</code></td><td>Boolean</td></tr>
+<tr><td><code>bRandom</code></td><td>Boolean</td></tr>
+<tr><td><code>bShadowThumb</code></td><td>Boolean</td></tr>
+<tr><td><code>bShowFileName</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iBrowseBy</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr><td><code>iFullImageSize</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iPicsInRow</code></td><td>Integer</td></tr>
+<tr><td><code>iSlideShowTimerQS</code></td><td>Integer</td></tr>
+<tr><td><code>iSortImagesBy</code></td><td>Integer</td></tr>
+<tr><td><code>iSpecialEffect</code></td><td>Integer</td></tr>
+<tr><td><code>iThumbSize</code></td><td>Integer</td></tr>
+<tr><td><code>iType</code></td><td>Integer</td></tr>
+<tr><td><code>sBorder</code></td><td>Text(255)</td></tr>
+<tr><td><code>sBorderColor</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCustomLink</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCycleEffect</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFullImage</code></td><td>Text(255)</td></tr>
+<tr><td><code>sHeight</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNextLink</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNSCSS</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNSImgLinks</code></td><td>Long text</td></tr>
+<tr><td><code>sPath</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPreviousLink</code></td><td>Text(255)</td></tr>
+<tr><td><code>sStyleImage</code></td><td>Text(255)</td></tr>
+<tr><td><code>sStyleTable</code></td><td>Text(255)</td></tr>
+<tr><td><code>sStyleTableCell</code></td><td>Text(255)</td></tr>
+<tr><td><code>sType</code></td><td>Text(255)</td></tr>
+<tr><td><code>sWidth</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblguestbook" class="dbtable">
+<summary><code>tblGuestBook</code> <span class="tag">17 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bRequireValidation</code></td><td>Boolean</td></tr>
+<tr><td><code>dOnlineFrom</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineUntil</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iPaging</code></td><td>Integer</td></tr>
+<tr><td><code>sBlockIP</code></td><td>Long text</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFullTemplate</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSortby</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTemplate</code></td><td>Long text</td></tr>
+<tr><td><code>sTemplateErr</code></td><td>Long text</td></tr>
+<tr><td><code>sTemplateForm</code></td><td>Long text</td></tr>
+<tr><td><code>sTemplateReply</code></td><td>Long text</td></tr>
+<tr><td><code>sWarningApproval</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblguestbookitem" class="dbtable">
+<summary><code>tblGuestBookItem</code> <span class="tag">10 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bApproved</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iGuestBookID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>ip</code></td><td>Text(255)</td></tr>
+<tr><td><code>sKey</code></td><td>Text(255)</td></tr>
+<tr><td><code>sMessageBy</code></td><td>Text(255)</td></tr>
+<tr><td><code>sMessageByEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sReply</code></td><td>Long text</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblmail" class="dbtable">
+<summary><code>tblMail</code> <span class="tag">7 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dDateSent</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iNumberRec</code></td><td>Integer</td></tr>
+<tr><td><code>sBody</code></td><td>Long text</td></tr>
+<tr><td><code>sBodyBGColor</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSubject</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblmailcontact" class="dbtable">
+<summary><code>tblMailContact</code> <span class="tag">2 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iMailID</code></td><td>Integer</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblmodule" class="dbtable">
+<summary><code>tblModule</code> <span class="tag">6 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bBSPw</code></td><td>Boolean</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sDescription</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPw</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblmonitor" class="dbtable">
+<summary><code>tblMonitor</code> <span class="tag">4 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dts</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sDetail</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblnewsletter" class="dbtable">
+<summary><code>tblNewsletter</code> <span class="tag">11 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sBodyBGColor</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFromEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFromName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sStyleLink</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSubject</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUnsubscribeText</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblnewslettercategory" class="dbtable">
+<summary><code>tblNewsletterCategory</code> <span class="tag">10 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bRequireBoth</code></td><td>Boolean</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sErrorMessage</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sNotifEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSignupForm</code></td><td>Long text</td></tr>
+<tr><td><code>sUnsubscribeFB</code></td><td>Long text</td></tr>
+<tr><td><code>sUnsubscribeFBTitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sWelcomeMessage</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblnewslettercategorysubscriber" class="dbtable">
+<summary><code>tblNewsletterCategorySubscriber</code> <span class="tag">8 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bActive</code></td><td>Boolean</td></tr>
+<tr><td><code>dAdded</code></td><td>Date/time</td></tr>
+<tr><td><code>iCategoryID</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sKey</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblnewsletterlog" class="dbtable">
+<summary><code>tblNewsletterLog</code> <span class="tag">6 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bRead</code></td><td>Boolean</td></tr>
+<tr><td><code>dWhen</code></td><td>Date/time</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iMailingID</code></td><td>Integer</td></tr>
+<tr><td><code>iSubscriberID</code></td><td>Integer</td></tr>
+<tr><td><code>sKey</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblnewslettermailing" class="dbtable">
+<summary><code>tblNewsletterMailing</code> <span class="tag">7 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bLog</code></td><td>Boolean</td></tr>
+<tr><td><code>bSent</code></td><td>Boolean</td></tr>
+<tr><td><code>dSentDate</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iNewsletterID</code></td><td>Integer</td></tr>
+<tr><td><code>sCategory</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblpackage" class="dbtable">
+<summary><code>tblPackage</code> <span class="tag">14 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sCopySiteID</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCopySitePath</code></td><td>Text(255)</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFeedbackMessage</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPathCodebase</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPathNewSite</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPathTemplates</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSetupForm</code></td><td>Long text</td></tr>
+<tr><td><code>sSubjectWelcomeEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrl</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrlTemplates</code></td><td>Text(255)</td></tr>
+<tr><td><code>sWelcomeEmail</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblpage" class="dbtable">
+<summary><code>tblPage</code> <span class="tag">73 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bAccordeon</code></td><td>Boolean</td></tr>
+<tr><td><code>bContainerPage</code></td><td>Boolean</td></tr>
+<tr><td><code>bDeleted</code></td><td>Boolean</td></tr>
+<tr><td><code>bHideDate</code></td><td>Boolean</td></tr>
+<tr><td><code>bHideFromSearch</code></td><td>Boolean</td></tr>
+<tr><td><code>bHomepage</code></td><td>Boolean</td></tr>
+<tr><td><code>bIntranet</code></td><td>Boolean</td></tr>
+<tr><td><code>bLossePagina</code></td><td>Boolean</td></tr>
+<tr><td><code>bLPExternalOINW</code></td><td>Boolean</td></tr>
+<tr><td><code>bMenuGroup</code></td><td>Boolean</td></tr>
+<tr><td><code>bNocache</code></td><td>Boolean</td></tr>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>bOpenInNewWindow</code></td><td>Boolean</td></tr>
+<tr><td><code>bOpenOnload</code></td><td>Boolean</td></tr>
+<tr><td><code>bPushRSS</code></td><td>Boolean</td></tr>
+<tr><td><code>createdTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineFrom</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineUntill</code></td><td>Date/time</td></tr>
+<tr><td><code>dPage</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedOn</code></td><td>Date/time</td></tr>
+<tr><td><code>iCatalogId</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr><td><code>iFeedId</code></td><td>Integer</td></tr>
+<tr><td><code>iFormId</code></td><td>Integer</td></tr>
+<tr><td><code>iHits</code></td><td>Integer</td></tr>
+<tr><td><code>iHitsRSS</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iListPageId</code></td><td>Integer</td></tr>
+<tr><td><code>iLPOpenByDefault</code></td><td>Integer</td></tr>
+<tr><td><code>iParentid</code></td><td>Integer</td></tr>
+<tr><td><code>iRang</code></td><td>Integer</td></tr>
+<tr><td><code>iReload</code></td><td>Integer</td></tr>
+<tr><td><code>iTemplateID</code></td><td>Integer</td></tr>
+<tr><td><code>iThemeID</code></td><td>Integer</td></tr>
+<tr><td><code>iUpdatedBy</code></td><td>Integer</td></tr>
+<tr><td><code>iVisitors</code></td><td>Integer</td></tr>
+<tr><td><code>iPMlocation</code></td><td>Integer</td></tr>
+<tr><td><code>sApplication</code></td><td>Text(255)</td></tr>
+<tr><td><code>sClassName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sDescription</code></td><td>Long text</td></tr>
+<tr><td><code>sExternalURL</code></td><td>Text(255)</td></tr>
+<tr><td><code>sExternalURLPrefix</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFormAlign</code></td><td>Text(255)</td></tr>
+<tr><td><code>sHeader</code></td><td>Long text</td></tr>
+<tr><td><code>sItemPicture</code></td><td>Text(255)</td></tr>
+<tr><td><code>sKeywords</code></td><td>Long text</td></tr>
+<tr><td><code>sLPExternalURL</code></td><td>Text(255)</td></tr>
+<tr><td><code>sLPIC</code></td><td>Text(255)</td></tr>
+<tr><td><code>sOrderBY</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPageCache</code></td><td>Long text</td></tr>
+<tr><td><code>sPageTitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sProp01</code></td><td>Long text</td></tr>
+<tr><td><code>sProp02</code></td><td>Long text</td></tr>
+<tr><td><code>sProp03</code></td><td>Long text</td></tr>
+<tr><td><code>sProp04</code></td><td>Long text</td></tr>
+<tr><td><code>sProp05</code></td><td>Long text</td></tr>
+<tr><td><code>sProp06</code></td><td>Long text</td></tr>
+<tr><td><code>sProp07</code></td><td>Long text</td></tr>
+<tr><td><code>sProp08</code></td><td>Long text</td></tr>
+<tr><td><code>sPw</code></td><td>Text(255)</td></tr>
+<tr><td><code>sRedirectTo</code></td><td>Text(255)</td></tr>
+<tr><td><code>sRel</code></td><td>Text(255)</td></tr>
+<tr><td><code>sRSSLink</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSEOtitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTitle</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTitleToBeValidated</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrlRRSImage</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUserFriendlyURL</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+<tr><td><code>sValueTextOnly</code></td><td>Long text</td></tr>
+<tr><td><code>sValueToBeValidated</code></td><td>Long text</td></tr>
+<tr><td><code>updatedTS</code></td><td>Date/time</td></tr>
+</tbody></table></details>
+<details id="db-tblpagecomment" class="dbtable">
+<summary><code>tblPageComment</code> <span class="tag">8 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>IPaddress</code></td><td>Text(255)</td></tr>
+<tr><td><code>iPageID</code></td><td>Integer</td></tr>
+<tr><td><code>sAuthor</code></td><td>Text(255)</td></tr>
+<tr><td><code>sEmail</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+<tr><td><code>sWebsite</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblpoll" class="dbtable">
+<summary><code>tblPoll</code> <span class="tag">13 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bShowTitle</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dResetDate</code></td><td>Date/time</td></tr>
+<tr><td><code>dVoteDeadline</code></td><td>Date/time</td></tr>
+<tr><td><code>dVoteFrom</code></td><td>Date/time</td></tr>
+<tr><td><code>dVoteUntil</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>label_numberofvotes</code></td><td>Text(255)</td></tr>
+<tr><td><code>label_viewresults</code></td><td>Text(255)</td></tr>
+<tr><td><code>label_votenow</code></td><td>Text(255)</td></tr>
+<tr><td><code>sQuestion</code></td><td>Text(255)</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblpollvote" class="dbtable">
+<summary><code>tblPollVote</code> <span class="tag">5 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>dVoteTS</code></td><td>Date/time</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>IP</code></td><td>Text(255)</td></tr>
+<tr><td><code>iPollID</code></td><td>Integer</td></tr>
+<tr><td><code>iVote</code></td><td>Integer</td></tr>
+</tbody></table></details>
+<details id="db-tblpopup" class="dbtable">
+<summary><code>tblPopup</code> <span class="tag">15 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bEnabled</code></td><td>Boolean</td></tr>
+<tr><td><code>dOnlineFrom</code></td><td>Date/time</td></tr>
+<tr><td><code>dOnlineUntil</code></td><td>Date/time</td></tr>
+<tr><td><code>iAutoclose</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr><td><code>iHeight</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iMode</code></td><td>Integer</td></tr>
+<tr><td><code>iShows</code></td><td>Integer</td></tr>
+<tr><td><code>iTemplateID</code></td><td>Integer</td></tr>
+<tr><td><code>iWidth</code></td><td>Integer</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sUrl</code></td><td>Text(255)</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+<tr><td><code>sViewmode</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblpost" class="dbtable">
+<summary><code>tblPost</code> <span class="tag">14 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bNeedsToBeValidated</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iContactID</code></td><td>Integer</td></tr>
+<tr><td><code>iFileSize</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iPostID</code></td><td>Integer</td></tr>
+<tr><td><code>iThemeID</code></td><td>Integer</td></tr>
+<tr><td><code>sAnName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sBody</code></td><td>Long text</td></tr>
+<tr><td><code>sFileDesc</code></td><td>Text(255)</td></tr>
+<tr><td><code>sFileName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sKey</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSubject</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblqshopcategory" class="dbtable">
+<summary><code>tblQShopCategory</code> <span class="tag">7 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iParentCatID</code></td><td>Integer</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblqshopmake" class="dbtable">
+<summary><code>tblQShopMake</code> <span class="tag">7 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sLogo</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblqshopprodcat" class="dbtable">
+<summary><code>tblQShopProdCat</code> <span class="tag">2 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iCategoryID</code></td><td>Integer</td></tr>
+<tr><td><code>iProductID</code></td><td>Integer</td></tr>
+</tbody></table></details>
+<details id="db-tblqshopproduct" class="dbtable">
+<summary><code>tblQShopProduct</code> <span class="tag">13 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>dCreatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>dUpdatedTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iMakeID</code></td><td>Integer</td></tr>
+<tr><td><code>iStock</code></td><td>Integer</td></tr>
+<tr><td><code>sDefaultImage</code></td><td>Text(255)</td></tr>
+<tr><td><code>sLongDesc</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPriceA</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPriceB</code></td><td>Text(255)</td></tr>
+<tr><td><code>sShortDesc</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tblsecondadmin" class="dbtable">
+<summary><code>tblSecondAdmin</code> <span class="tag">3 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sPassword</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblsession" class="dbtable">
+<summary><code>tblSession</code> <span class="tag">8 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>Browser</code></td><td>Text(255)</td></tr>
+<tr><td><code>dTS</code></td><td>Date/time</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>Referer</code></td><td>Long text</td></tr>
+<tr><td><code>sLanguage</code></td><td>Text(255)</td></tr>
+<tr><td><code>startpage</code></td><td>Text(255)</td></tr>
+<tr><td><code>UserIP</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tbltemplate" class="dbtable">
+<summary><code>tblTemplate</code> <span class="tag">10 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bCompress</code></td><td>Boolean</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>sCompressValue</code></td><td>Long text</td></tr>
+<tr><td><code>sEmailValue</code></td><td>Long text</td></tr>
+<tr><td><code>sMobileValue</code></td><td>Long text</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sPrintValue</code></td><td>Long text</td></tr>
+<tr><td><code>sValue</code></td><td>Long text</td></tr>
+<tr><td><code>sWAPValue</code></td><td>Long text</td></tr>
+</tbody></table></details>
+<details id="db-tbltheme" class="dbtable">
+<summary><code>tblTheme</code> <span class="tag">32 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>bAllowAP</code></td><td>Boolean</td></tr>
+<tr><td><code>bAllowComments</code></td><td>Boolean</td></tr>
+<tr><td><code>bAllowHTML</code></td><td>Boolean</td></tr>
+<tr><td><code>bCompactList</code></td><td>Boolean</td></tr>
+<tr><td><code>bEmbed</code></td><td>Boolean</td></tr>
+<tr><td><code>bFileUploads</code></td><td>Boolean</td></tr>
+<tr><td><code>bForwardPostsToModerator</code></td><td>Boolean</td></tr>
+<tr><td><code>bLocked</code></td><td>Boolean</td></tr>
+<tr><td><code>bOnline</code></td><td>Boolean</td></tr>
+<tr><td><code>bPushRSS</code></td><td>Boolean</td></tr>
+<tr><td><code>bSmileys</code></td><td>Boolean</td></tr>
+<tr><td><code>bUpload</code></td><td>Boolean</td></tr>
+<tr><td><code>bValidation</code></td><td>Boolean</td></tr>
+<tr><td><code>iContactID</code></td><td>Integer</td></tr>
+<tr><td><code>iCustomerID</code></td><td>Integer</td></tr>
+<tr class="pk"><td><code>iId</code></td><td>PK</td></tr>
+<tr><td><code>iLimitReplyTo</code></td><td>Integer</td></tr>
+<tr><td><code>iLimitTopicTo</code></td><td>Integer</td></tr>
+<tr><td><code>iPageSize</code></td><td>Integer</td></tr>
+<tr><td><code>iSearchType</code></td><td>Integer</td></tr>
+<tr><td><code>iSubLevel</code></td><td>Integer</td></tr>
+<tr><td><code>iType</code></td><td>Integer</td></tr>
+<tr><td><code>iWidth</code></td><td>Integer</td></tr>
+<tr><td><code>sBodyNotification</code></td><td>Long text</td></tr>
+<tr><td><code>sCode</code></td><td>Text(255)</td></tr>
+<tr><td><code>sColorEven</code></td><td>Text(255)</td></tr>
+<tr><td><code>sColorUneven</code></td><td>Text(255)</td></tr>
+<tr><td><code>sLabelYourName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sName</code></td><td>Text(255)</td></tr>
+<tr><td><code>sSubjectNotification</code></td><td>Text(255)</td></tr>
+<tr><td><code>sTopicBodyNotification</code></td><td>Long text</td></tr>
+<tr><td><code>sTopicSubjectNotification</code></td><td>Text(255)</td></tr>
+</tbody></table></details>
+<details id="db-tblthemesubscription" class="dbtable">
+<summary><code>tblThemeSubscription</code> <span class="tag">2 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iContactID</code></td><td>Integer</td></tr>
+<tr><td><code>iThemeID</code></td><td>Integer</td></tr>
+</tbody></table></details>
+<details id="db-tblthemetopicsubscription" class="dbtable">
+<summary><code>tblThemeTopicSubscription</code> <span class="tag">2 columns</span></summary>
+<table class="dbcols"><thead><tr><th>Column</th><th>Type</th></tr></thead><tbody>
+<tr><td><code>iContactID</code></td><td>Integer</td></tr>
+<tr><td><code>iPostID</code></td><td>Integer</td></tr>
+</tbody></table></details>
+
+
+</section>
+
+<!-- ====================== 9. EXAMPLES ====================== -->
 <section id="examples">
-  <h2>8. Custom-code examples <a class="anchor" href="#examples">#</a></h2>
+  <h2>9. Custom-code examples <a class="anchor" href="#examples">#</a></h2>
   <p>Each example shows exactly what goes in the <b>Function body</b> box of
   <code>bs_constantEdit.asp</code> (and the <b>Parameters</b> / <b>Global Code</b> boxes when used).
   Remember: write a <b>fragment</b>, never a full page, and never call <code>Response.End</code>.</p>
@@ -739,12 +1756,20 @@ End If</code></pre>
   </ul>
 </section>
 
-<!-- ====================== 9. PROMPT BUILDER ====================== -->
+<!-- ====================== 10. PROMPT BUILDER ====================== -->
 <section id="builder">
-  <h2>9. Prompt builder <a class="anchor" href="#builder">#</a></h2>
+  <h2>10. Prompt builder <a class="anchor" href="#builder">#</a></h2>
   <p>Generate a compact, accurate spec for an AI coding agent (or yourself) to produce a QuickerSite-ready
   constant. Fill the form, press <b>Build</b>, copy the result. The generated prompt embeds the engine rules
   from chapter&nbsp;3 so the output drops straight into <code>bs_constantEdit.asp</code>.</p>
+
+  <div class="note"><b>Browsing vs. offline.</b> Pick the <b>Target AI agent</b> mode below. If your agent can browse
+  (e.g. a web-enabled assistant), the prompt tells it to fetch the published docs at
+  <a href="https://pietercooreman.github.io/QuickerSite/">pietercooreman.github.io/QuickerSite/</a> for exact schema
+  and class details. If it is <b>offline</b> (plain API / local model), the prompt forbids guessing and instead asks you to
+  paste the relevant schema (copy it from <a href="#db-all">chapter&nbsp;8</a>) &mdash; otherwise the model would
+  hallucinate the URL&rsquo;s contents.</div>
+
 
   <div class="pb">
     <!-- inputs -->
@@ -763,7 +1788,7 @@ End If</code></pre>
         <textarea id="pbNotes" placeholder="iCount = max items (integer, default 5)"></textarea>
       </div>
 
-      <label>Capabilities <small>Pick only what is needed.</small></label>
+      <label>Capabilities <small>Leave all off to let the AI use the minimum the goal needs.</small></label>
       <div class="pills" id="pbCaps">
         <span class="pill" data-c="db">Database</span>
         <span class="pill" data-c="auth">Login check</span>
@@ -777,8 +1802,15 @@ End If</code></pre>
         <span class="pill" data-c="constants">Nested shortcodes</span>
       </div>
 
-      <label>DB schema <small>(if Database) tables/fields in play</small></label>
-      <textarea id="pbSchema" placeholder="tblPage: iId, sTitle, iCustomerID, bOnline, createdTS"></textarea>
+      <label>Target AI agent <small>Controls whether the prompt tells the model to fetch the docs URL.</small></label>
+      <div class="pills" id="pbAgentBox">
+        <label class="chk" style="margin:0"><input type="radio" name="pbAgent" value="online" checked /> Can browse the web (fetch docs)</label>
+        <label class="chk" style="margin:0"><input type="radio" name="pbAgent" value="offline" /> Offline / no browsing (paste schema)</label>
+      </div>
+
+      <label>DB schema <small>Paste the exact tables/columns the script touches. Strongly recommended for offline agents.</small></label>
+      <textarea id="pbSchema" placeholder="tblPage: iId, sTitle, iCustomerID, bOnline, createdTS&#10;tblCatalogItem: iId, sTitle, iCatalogID, dCreatedTS"></textarea>
+      <p class="note" style="margin:6px 0">Copy real tables from <a href="#db-all">chapter&nbsp;8 &rarr; All tables &amp; columns</a>. With an offline agent and no schema here, the prompt will tell the model to ask instead of guessing.</p>
 
       <label>Output type</label>
       <select id="pbOut">
@@ -808,7 +1840,8 @@ End If</code></pre>
 <div class="footer">
   QuickerSite Developer Guidelines &mdash; generated from source in <code>asp/includes/</code>.
   References use <code>file:line</code> against this repository. Tip: press <span class="kbd">copy</span> on any
-  code block, and use the sidebar to jump between sections.
+  code block, and use the sidebar to jump between sections.<br />
+  Published at <a href="https://pietercooreman.github.io/QuickerSite/">pietercooreman.github.io/QuickerSite/</a>.
 </div>
 
     </div><!-- /.content -->
