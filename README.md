@@ -15,7 +15,7 @@ When browsing to your site the first time, you will be prompted for a password. 
 
 ## Templating engine
 
-You can use the [QuickerSite Template Generator](https://pietercooreman.github.io/QuickerSite-Template-Generator/) or [JStemplates.com](https://jstemplates.com/) to generate responsive web designs to use in QuickerSite. 
+You can use the [QuickerSite Template Generator](https://pietercooreman.github.io/QuickerSite-Template-Generator/) or [JStemplates.com](https://jstemplates.com/) to generate responsive web designs to use in QuickerSite. You can also use the Cover Generator for stand alone Covers: https://pietercooreman.github.io/Cover-Generator/
 
 ## Docs
 
