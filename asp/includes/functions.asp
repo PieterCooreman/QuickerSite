@@ -51,7 +51,7 @@ function QS_iFrameYT(input)
 		myRegExp.Global = True
 		myRegExp.Pattern = "(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?]+)?)"
 		replacement = "<div style='margin:10px 0px 10px 0px;clear:both'><iframe title='YouTube video player' width='480' height='390' src='http://www.youtube.com/embed/$1' frameborder='0' allowfullscreen='1'></iframe></div>"
-		iFrameYT=myRegExp.Replace(input, replacement)
+		QS_iFrameYT=myRegExp.Replace(input, replacement)
 	end if
 	on error goto 0
 end function
