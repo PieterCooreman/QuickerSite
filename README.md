@@ -15,7 +15,12 @@ When browsing to your site the first time, you will be prompted for a password. 
 
 ## Templating engines
 
-You can use the [QuickerSite Template Generator](https://pietercooreman.github.io/QuickerSite-Template-Generator/) or [JStemplates.com](https://jstemplates.com/) to generate responsive web designs to use in QuickerSite. You can also use the [Cover Generator](https://pietercooreman.github.io/Cover-Generator/) for stand alone Covers. [The QuickerSite Newsletter Template Generator](https://pietercooreman.github.io/QuickerSite-Newsletter-Template-Generator/) finally, generates 100% copy/paste-ready and reliable newsletter templates.
+- [QuickerSite website](https://quickersite.com) - QuickerSite homepage
+- [QuickerSite Template Generator](https://pietercooreman.github.io/QuickerSite-Template-Generator/) - generate responsive web designs to use in QuickerSite
+- [JStemplates.com](https://jstemplates.com/) - generate responsive web designs to use in QuickerSite
+-  [Cover Generator](https://pietercooreman.github.io/Cover-Generator/) A single-file, client-side web app that generates beautiful covers for blogs, social media, presentations, and more. Built with vanilla JavaScript and Bootstrap 5 — no build step, no backend, no API keys.
+- [The QuickerSite Newsletter Template Generator](https://pietercooreman.github.io/QuickerSite-Newsletter-Template-Generator/) Generates random, email-client-safe HTML newsletter templates. Refresh for a new design. Copy the HTML into QuickerSite.
+- [Developer Blog](https://quickersite.com/blog)
 
 ## Docs
 
