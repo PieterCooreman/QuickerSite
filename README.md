@@ -13,7 +13,7 @@ Install this application in the root of an IIS website and make sure IUSR has fu
 Make sure "default.asp" is the default document. The default installation uses an Access database and therefore 32bits-support needs to be enabled for your IIS application pool.
 When browsing to your site the first time, you will be prompted for a password. By default this is "admin". You have to change it to something else. 
 
-## Templating engines
+## QuickerSite Ecosystem
 
 - [QuickerSite website](https://quickersite.com) - QuickerSite homepage
 - [QuickerSite Template Generator](https://pietercooreman.github.io/QuickerSite-Template-Generator/) - generate responsive web designs to use in QuickerSite
