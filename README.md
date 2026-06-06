@@ -19,4 +19,4 @@ You can use the [QuickerSite Template Generator](https://pietercooreman.github.i
 
 ## Docs
 
-https://pietercooreman.github.io/QuickerSite/ (refer developers and/or AI agents)
+https://pietercooreman.github.io/QuickerSite/ (refer developers and/or AI agents for extending QuickerSite with custom applications)
