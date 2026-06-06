@@ -22,6 +22,5 @@ When browsing to your site the first time, you will be prompted for a password. 
 - [The QuickerSite Newsletter Template Generator](https://pietercooreman.github.io/QuickerSite-Newsletter-Template-Generator/) Generates random, email-client-safe HTML newsletter templates. Refresh for a new design. Copy the HTML into QuickerSite.
 - [Developer Blog](https://quickersite.com/blog)
 
-## Developer Guide
-
+## Developer Guidelines
 https://pietercooreman.github.io/QuickerSite/ (refer developers and/or AI agents for extending QuickerSite with custom applications)
