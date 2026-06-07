@@ -15,7 +15,7 @@ When browsing to your site the first time, you will be prompted for a password. 
 
 ## QuickerSite Ecosystem
 
-- [QuickerSite website](https://quickersite.com) - QuickerSite homepage
+- [QuickerSite Website](https://quickersite.com) - QuickerSite homepage
 - [QuickerSite Template Generator](https://pietercooreman.github.io/QuickerSite-Template-Generator/) - Fully automated random template generation for QuickerSite CMS
 - [JStemplates.com](https://jstemplates.com/) - Generate Responsive HTML5 & CSS3 Web Templates to use in QuickerSite
 -  [Cover Generator](https://pietercooreman.github.io/Cover-Generator/) - A single-file, client-side web app that generates beautiful covers for blogs, social media, presentations, and more. Built with vanilla JavaScript and Bootstrap 5 — no build step, no backend, no API keys.
