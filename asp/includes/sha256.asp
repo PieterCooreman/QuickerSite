@@ -3,147 +3,139 @@
 dim m_lOnBits(30)
 dim m_l2Power(30)
 dim K(63)
-dim m_bSHA256Init
-dim m_dSHA256Cache
 
 Const BITS_TO_A_BYTE = 8
 Const BYTES_TO_A_WORD = 4
 Const BITS_TO_A_WORD = 32
 
-Sub InitSHA256()
-    If m_bSHA256Init Then Exit Sub
+m_lOnBits(0) = CLng(1)
+m_lOnBits(1) = CLng(3)
+m_lOnBits(2) = CLng(7)
+m_lOnBits(3) = CLng(15)
+m_lOnBits(4) = CLng(31)
+m_lOnBits(5) = CLng(63)
+m_lOnBits(6) = CLng(127)
+m_lOnBits(7) = CLng(255)
+m_lOnBits(8) = CLng(511)
+m_lOnBits(9) = CLng(1023)
+m_lOnBits(10) = CLng(2047)
+m_lOnBits(11) = CLng(4095)
+m_lOnBits(12) = CLng(8191)
+m_lOnBits(13) = CLng(16383)
+m_lOnBits(14) = CLng(32767)
+m_lOnBits(15) = CLng(65535)
+m_lOnBits(16) = CLng(131071)
+m_lOnBits(17) = CLng(262143)
+m_lOnBits(18) = CLng(524287)
+m_lOnBits(19) = CLng(1048575)
+m_lOnBits(20) = CLng(2097151)
+m_lOnBits(21) = CLng(4194303)
+m_lOnBits(22) = CLng(8388607)
+m_lOnBits(23) = CLng(16777215)
+m_lOnBits(24) = CLng(33554431)
+m_lOnBits(25) = CLng(67108863)
+m_lOnBits(26) = CLng(134217727)
+m_lOnBits(27) = CLng(268435455)
+m_lOnBits(28) = CLng(536870911)
+m_lOnBits(29) = CLng(1073741823)
+m_lOnBits(30) = CLng(2147483647)
 
-    m_lOnBits(0) = CLng(1)
-    m_lOnBits(1) = CLng(3)
-    m_lOnBits(2) = CLng(7)
-    m_lOnBits(3) = CLng(15)
-    m_lOnBits(4) = CLng(31)
-    m_lOnBits(5) = CLng(63)
-    m_lOnBits(6) = CLng(127)
-    m_lOnBits(7) = CLng(255)
-    m_lOnBits(8) = CLng(511)
-    m_lOnBits(9) = CLng(1023)
-    m_lOnBits(10) = CLng(2047)
-    m_lOnBits(11) = CLng(4095)
-    m_lOnBits(12) = CLng(8191)
-    m_lOnBits(13) = CLng(16383)
-    m_lOnBits(14) = CLng(32767)
-    m_lOnBits(15) = CLng(65535)
-    m_lOnBits(16) = CLng(131071)
-    m_lOnBits(17) = CLng(262143)
-    m_lOnBits(18) = CLng(524287)
-    m_lOnBits(19) = CLng(1048575)
-    m_lOnBits(20) = CLng(2097151)
-    m_lOnBits(21) = CLng(4194303)
-    m_lOnBits(22) = CLng(8388607)
-    m_lOnBits(23) = CLng(16777215)
-    m_lOnBits(24) = CLng(33554431)
-    m_lOnBits(25) = CLng(67108863)
-    m_lOnBits(26) = CLng(134217727)
-    m_lOnBits(27) = CLng(268435455)
-    m_lOnBits(28) = CLng(536870911)
-    m_lOnBits(29) = CLng(1073741823)
-    m_lOnBits(30) = CLng(2147483647)
-
-    m_l2Power(0) = CLng(1)
-    m_l2Power(1) = CLng(2)
-    m_l2Power(2) = CLng(4)
-    m_l2Power(3) = CLng(8)
-    m_l2Power(4) = CLng(16)
-    m_l2Power(5) = CLng(32)
-    m_l2Power(6) = CLng(64)
-    m_l2Power(7) = CLng(128)
-    m_l2Power(8) = CLng(256)
-    m_l2Power(9) = CLng(512)
-    m_l2Power(10) = CLng(1024)
-    m_l2Power(11) = CLng(2048)
-    m_l2Power(12) = CLng(4096)
-    m_l2Power(13) = CLng(8192)
-    m_l2Power(14) = CLng(16384)
-    m_l2Power(15) = CLng(32768)
-    m_l2Power(16) = CLng(65536)
-    m_l2Power(17) = CLng(131072)
-    m_l2Power(18) = CLng(262144)
-    m_l2Power(19) = CLng(524288)
-    m_l2Power(20) = CLng(1048576)
-    m_l2Power(21) = CLng(2097152)
-    m_l2Power(22) = CLng(4194304)
-    m_l2Power(23) = CLng(8388608)
-    m_l2Power(24) = CLng(16777216)
-    m_l2Power(25) = CLng(33554432)
-    m_l2Power(26) = CLng(67108864)
-    m_l2Power(27) = CLng(134217728)
-    m_l2Power(28) = CLng(268435456)
-    m_l2Power(29) = CLng(536870912)
-    m_l2Power(30) = CLng(1073741824)
+m_l2Power(0) = CLng(1)
+m_l2Power(1) = CLng(2)
+m_l2Power(2) = CLng(4)
+m_l2Power(3) = CLng(8)
+m_l2Power(4) = CLng(16)
+m_l2Power(5) = CLng(32)
+m_l2Power(6) = CLng(64)
+m_l2Power(7) = CLng(128)
+m_l2Power(8) = CLng(256)
+m_l2Power(9) = CLng(512)
+m_l2Power(10) = CLng(1024)
+m_l2Power(11) = CLng(2048)
+m_l2Power(12) = CLng(4096)
+m_l2Power(13) = CLng(8192)
+m_l2Power(14) = CLng(16384)
+m_l2Power(15) = CLng(32768)
+m_l2Power(16) = CLng(65536)
+m_l2Power(17) = CLng(131072)
+m_l2Power(18) = CLng(262144)
+m_l2Power(19) = CLng(524288)
+m_l2Power(20) = CLng(1048576)
+m_l2Power(21) = CLng(2097152)
+m_l2Power(22) = CLng(4194304)
+m_l2Power(23) = CLng(8388608)
+m_l2Power(24) = CLng(16777216)
+m_l2Power(25) = CLng(33554432)
+m_l2Power(26) = CLng(67108864)
+m_l2Power(27) = CLng(134217728)
+m_l2Power(28) = CLng(268435456)
+m_l2Power(29) = CLng(536870912)
+m_l2Power(30) = CLng(1073741824)
     
-    K(0) = &H428A2F98
-    K(1) = &H71374491
-    K(2) = &HB5C0FBCF
-    K(3) = &HE9B5DBA5
-    K(4) = &H3956C25B
-    K(5) = &H59F111F1
-    K(6) = &H923F82A4
-    K(7) = &HAB1C5ED5
-    K(8) = &HD807AA98
-    K(9) = &H12835B01
-    K(10) = &H243185BE
-    K(11) = &H550C7DC3
-    K(12) = &H72BE5D74
-    K(13) = &H80DEB1FE
-    K(14) = &H9BDC06A7
-    K(15) = &HC19BF174
-    K(16) = &HE49B69C1
-    K(17) = &HEFBE4786
-    K(18) = &HFC19DC6
-    K(19) = &H240CA1CC
-    K(20) = &H2DE92C6F
-    K(21) = &H4A7484AA
-    K(22) = &H5CB0A9DC
-    K(23) = &H76F988DA
-    K(24) = &H983E5152
-    K(25) = &HA831C66D
-    K(26) = &HB00327C8
-    K(27) = &HBF597FC7
-    K(28) = &HC6E00BF3
-    K(29) = &HD5A79147
-    K(30) = &H6CA6351
-    K(31) = &H14292967
-    K(32) = &H27B70A85
-    K(33) = &H2E1B2138
-    K(34) = &H4D2C6DFC
-    K(35) = &H53380D13
-    K(36) = &H650A7354
-    K(37) = &H766A0ABB
-    K(38) = &H81C2C92E
-    K(39) = &H92722C85
-    K(40) = &HA2BFE8A1
-    K(41) = &HA81A664B
-    K(42) = &HC24B8B70
-    K(43) = &HC76C51A3
-    K(44) = &HD192E819
-    K(45) = &HD6990624
-    K(46) = &HF40E3585
-    K(47) = &H106AA070
-    K(48) = &H19A4C116
-    K(49) = &H1E376C08
-    K(50) = &H2748774C
-    K(51) = &H34B0BCB5
-    K(52) = &H391C0CB3
-    K(53) = &H4ED8AA4A
-    K(54) = &H5B9CCA4F
-    K(55) = &H682E6FF3
-    K(56) = &H748F82EE
-    K(57) = &H78A5636F
-    K(58) = &H84C87814
-    K(59) = &H8CC70208
-    K(60) = &H90BEFFFA
-    K(61) = &HA4506CEB
-    K(62) = &HBEF9A3F7
-    K(63) = &HC67178F2
-
-    m_bSHA256Init = True
-End Sub
+K(0) = &H428A2F98
+K(1) = &H71374491
+K(2) = &HB5C0FBCF
+K(3) = &HE9B5DBA5
+K(4) = &H3956C25B
+K(5) = &H59F111F1
+K(6) = &H923F82A4
+K(7) = &HAB1C5ED5
+K(8) = &HD807AA98
+K(9) = &H12835B01
+K(10) = &H243185BE
+K(11) = &H550C7DC3
+K(12) = &H72BE5D74
+K(13) = &H80DEB1FE
+K(14) = &H9BDC06A7
+K(15) = &HC19BF174
+K(16) = &HE49B69C1
+K(17) = &HEFBE4786
+K(18) = &HFC19DC6
+K(19) = &H240CA1CC
+K(20) = &H2DE92C6F
+K(21) = &H4A7484AA
+K(22) = &H5CB0A9DC
+K(23) = &H76F988DA
+K(24) = &H983E5152
+K(25) = &HA831C66D
+K(26) = &HB00327C8
+K(27) = &HBF597FC7
+K(28) = &HC6E00BF3
+K(29) = &HD5A79147
+K(30) = &H6CA6351
+K(31) = &H14292967
+K(32) = &H27B70A85
+K(33) = &H2E1B2138
+K(34) = &H4D2C6DFC
+K(35) = &H53380D13
+K(36) = &H650A7354
+K(37) = &H766A0ABB
+K(38) = &H81C2C92E
+K(39) = &H92722C85
+K(40) = &HA2BFE8A1
+K(41) = &HA81A664B
+K(42) = &HC24B8B70
+K(43) = &HC76C51A3
+K(44) = &HD192E819
+K(45) = &HD6990624
+K(46) = &HF40E3585
+K(47) = &H106AA070
+K(48) = &H19A4C116
+K(49) = &H1E376C08
+K(50) = &H2748774C
+K(51) = &H34B0BCB5
+K(52) = &H391C0CB3
+K(53) = &H4ED8AA4A
+K(54) = &H5B9CCA4F
+K(55) = &H682E6FF3
+K(56) = &H748F82EE
+K(57) = &H78A5636F
+K(58) = &H84C87814
+K(59) = &H8CC70208
+K(60) = &H90BEFFFA
+K(61) = &HA4506CEB
+K(62) = &HBEF9A3F7
+K(63) = &HC67178F2
 
 Function LShift(lValue, iShiftBits)
     If iShiftBits = 0 Then
@@ -307,15 +299,6 @@ Public Function SHA256(sMessage)
     Dim j
     Dim T1
     Dim T2
-
-    InitSHA256
-
-    If Not IsObject(m_dSHA256Cache) Then Set m_dSHA256Cache = CreateObject("Scripting.Dictionary")
-
-    If m_dSHA256Cache.Exists(sMessage) Then
-        SHA256 = m_dSHA256Cache(sMessage)
-        Exit Function
-    End If
     
     HASH(0) = &H6A09E667
     HASH(1) = &HBB67AE85
@@ -369,7 +352,5 @@ Public Function SHA256(sMessage)
     Next
     
     SHA256 = LCase(Right("00000000" & Hex(HASH(0)), 8) & Right("00000000" & Hex(HASH(1)), 8) & Right("00000000" & Hex(HASH(2)), 8) & Right("00000000" & Hex(HASH(3)), 8) & Right("00000000" & Hex(HASH(4)), 8) & Right("00000000" & Hex(HASH(5)), 8) & Right("00000000" & Hex(HASH(6)), 8) & Right("00000000" & Hex(HASH(7)), 8))
-
-    m_dSHA256Cache(sMessage) = SHA256
 End Function
 %>
